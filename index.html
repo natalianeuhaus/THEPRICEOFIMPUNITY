@@ -139,6 +139,16 @@ const convergence=[
   ["2019 · PODER JUDICIAL · court pretrial detention decision, not conviction","https://www.pj.gob.pe/wps/wcm/connect/cortesuperiormadrediospj/s_csj_madre_de_dios_nuevo/as_inicio/as_imagen_prensa/as_noticias/csjmd_nprision_preventiva"],
   ["2022 · ELI / USAID · transfers between mining areas and mining officials, report pp. 39–43","https://www.eli.org/sites/default/files/files-pdf/Informe-Corrupcion-en-MAPE_final.pdf"],
   ["2018 · EL COMERCIO · alleged deposits from miners in Huepetuhe and Inambari","https://elcomercio.pe/peru/madre-de-dios/director-drem-recibio-s-93-135-mineros-fiscal-noticia-530795-noticia/"]
+ ]},
+ {id:"intersection-lapampa",first:1,type:"DOCUMENTED LOCALITY OVERLAP",title:"La Pampa · illegal mining and trafficking documented",coord:[-12.85,-69.52],
+ summary:"Official records explicitly locate trafficking investigations and convictions in the La Pampa illegal-mining zone and along the km 107–115 Interoceanic Highway corridor. In 2023, the president of the Madre de Dios Superior Court publicly identified trafficking and sexual/labor exploitation among crimes associated with illegal mining in La Pampa. In 2025, police described a suspected organization allegedly involved in both crimes; this remains an allegation, not a conviction. These separate records demonstrate a documented locality-level connection, not that all cases involve the same people, premises, or corrupt officials. Case dots are approximate locality markers, not precise bars or mining sites.",
+ records:[
+  ["2019 · MINISTRY OF DEFENSE · Operation Mercury against illegal mining and related trafficking","https://www.gob.pe/institucion/mindef/noticias/25778-gobierno-inicia-operacion-sin-precedentes-contra-la-mineria-ilegal-en-madre-de-dios"],
+  ["2021 · MINISTERIO PÚBLICO · three minors rescued at km 108 inside illegal-mining zone","https://www.gob.pe/institucion/mpfn/noticias/503295-rescatan-a-3-menores-e-intervienen-a-dos-personas-por-el-presunto-delito-de-trata-de-personas-en-madre-de-dios"],
+  ["2023 · PODER JUDICIAL · regional court describes crimes associated with mining in La Pampa","https://www.pj.gob.pe/wps/wcm/connect/ambiente/s_amb_prin/as_noticias/cs_n_csjmadrededios_condenas_mineriailegal"],
+  ["2023 · MINISTERIO PÚBLICO · trafficking conviction involving bar at km 107","https://www.gob.pe/institucion/mpfn/noticias/834447-madre-de-dios-sentencian-a-mujer-que-capto-a-dos-jovenes-para-explotarlas-en-bar-de-la-pampa"],
+  ["2023 · MINISTERIO PÚBLICO · separate labor-trafficking convictions at km 108","https://www.gob.pe/institucion/mpfn/noticias/775969-madre-de-dios-ministerio-publico-logra-condena-contra-pareja-por-explotacion-laboral-de-joven-en-la-pampa"],
+  ["2025 · MINISTERIO DEL INTERIOR · suspected group investigated for mining and trafficking-related offenses","https://www.gob.pe/institucion/mininter/noticias/1230300-madre-de-dios-pnp-desarticula-banda-criminal-dedicada-a-la-mineria-ilegal"]
  ]}
 ];
 evidence.push(...convergence.map(n=>({...n,convergence:true,url:n.records[0][1]})));
@@ -160,7 +170,7 @@ const miningRegions=[
 ];
 evidence.push(...miningRegions);
 caseFiles.forEach(r=>evidence.push({id:"case-"+r.id,first:r.layer==="mining"?0:r.layer==="trafficking"?1:2,type:(r.layer==="mining"?"MINING":r.layer==="trafficking"?"TRAFFICKING":"INSTITUTIONAL")+" · "+r.year,title:r.title,summary:r.status+". "+r.description,coord:[r.lat,r.lng],url:r.url,caseLayer:r.layer}));
-const filters={mining:true,corridor:true,judicial:true,origins:true,historical:true,trafficking:true,institutions:true,convergence:true,context:false};
+const filters={mining:true,highway:true,corridor:true,judicial:true,origins:true,historical:true,trafficking:true,institutions:true,convergence:true,context:false};
 const courtDistrictSource="https://www.pj.gob.pe/wps/wcm/connect/CorteSuperiorMadreDiosPJ/s_csj_madre_de_dios_nuevo/as_corte_superior_madre_de_dios/as_conocenos/as_historia/";
 const regionalBoundarySource="https://github.com/nfg2kr-source/inei-explorador/blob/main/data/geo/peru_adm1_geoboundaries_simplified.geojson";
 const judicialBoundaryLayer=L.layerGroup().addTo(map);
@@ -191,6 +201,27 @@ async function loadJudicialBoundary(){
  }
 }
 loadJudicialBoundary();
+
+// A static clipped/simplified extract of the Peruvian government's PE-30C road GIS.
+// Unlike the dotted case-to-court relationship in Chapter 6, this is actual road geometry.
+// Case dots are locality references, NOT geocoded highway-kilometer premises.
+const highwaySource="https://sisfor.osinfor.gob.pe/osinfor/rest/services/SISFOR_v5/PUBLICABLE_CARTOBASE/MapServer/1";
+map.createPane("interoceanica-underlay");
+map.getPane("interoceanica-underlay").style.zIndex="395";
+const highwayLayer=L.layerGroup().addTo(map);
+let highwayData=null;
+function updateHighwayOverlay(){
+ highwayLayer.clearLayers();
+ if(!shownLayer("highway")||!highwayData)return;
+ const roadPopup="<strong>Interoceanic Highway · PE-30C</strong><p>Government-mapped road alignment through the Mazuko–La Pampa–Puerto Maldonado corridor. Prosecutor records identify establishments at kilometers 107, 108 and 115, but the case dots on this map are approximate locality markers rather than precise roadside addresses.</p><p>This line is the roadway, not a verified trafficking itinerary or evidence of travel by any particular person.</p><a target='_blank' rel='noopener' href='"+highwaySource+"'>GOVERNMENT ROAD GEOMETRY ↗</a>";
+ const base={pane:"interoceanica-underlay",interactive:false,style:{color:"#101010",weight:5.5,opacity:.85,lineCap:"round",lineJoin:"round"}};
+ L.geoJSON(highwayData,base).addTo(highwayLayer);
+ L.geoJSON(highwayData,{pane:"interoceanica-underlay",style:{color:"#f7e7be",weight:2.8,opacity:.95,lineCap:"round",lineJoin:"round"},onEachFeature:(_f,shape)=>shape.bindPopup(roadPopup,{maxWidth:320})}).addTo(highwayLayer);
+}
+fetch("./data/interoceanica_pe30c.geojson",{cache:"no-cache"})
+ .then(r=>{if(!r.ok)throw Error("HTTP "+r.status);return r.json()})
+ .then(j=>{if(j.type!=="FeatureCollection"||!Array.isArray(j.features)||!j.features.length)throw Error("Invalid road dataset");highwayData=j;render(false)})
+ .catch(err=>{console.warn("Interoceanic Highway layer:",err)});
 
 const officialCorridorUrl="https://geocatmin.ingemmet.gob.pe/arcgis/rest/services/SERV_CATASTRO_MADRE_DIOS/MapServer/1";
 const officialCorridorLayer=L.layerGroup().addTo(map);
@@ -238,6 +269,7 @@ function createLegend(){
  const ctrl=document.getElementById("legend-controls");ctrl.replaceChildren();
  const opts=[
   {key:"mining",label:"Gold · mining disturbance outlines and study-area dots",symbol:"scar"},
+  {key:"highway",label:"Cream line · Interoceanic Highway (PE-30C)",symbol:"highway"},
   {key:"corridor",label:"White · designated small-scale mining-zone outline",symbol:"corridor"},
   {key:"judicial",label:"Blue outline · Madre de Dios judicial district",symbol:"judicial"},
   {key:"origins",label:"Pink filled circles · recruitment origins (2020–21)",symbol:"origin"},
@@ -252,6 +284,7 @@ function createLegend(){
   const check=document.createElement("input");check.type="checkbox";check.checked=filters[o.key];check.setAttribute("aria-label","Toggle "+o.label);
   check.onchange=()=>{filters[o.key]=check.checked;if(activeEvidence){const e=evidence.find(x=>x.id===activeEvidence);if(e&&!legendVisible(e))activeEvidence=null}render(false)};
   const swatch=document.createElement("i");swatch.className="legend-swatch sym-"+o.symbol;swatch.setAttribute("aria-hidden","true");
+  if(o.key==="highway"){swatch.style.border="0";swatch.style.borderTop="3px solid #f7e7be";swatch.style.borderRadius="0";swatch.style.height="0"}
   const txt=document.createElement("span");txt.textContent=o.label;
   el.append(check,swatch,txt);ctrl.append(el);
  });
@@ -262,6 +295,14 @@ function createLegend(){
   const button=document.createElement("button");button.type="button";button.className="legend-spot";
   button.textContent="VIEW MADRE DE DIOS DISTRICT ↗";
   button.onclick=()=>map.fitBounds(L.geoJSON(judicialBoundaryData).getBounds(),{padding:[36,36],maxZoom:7,animate:true});
+  group.append(heading,button);holder.append(group);
+ }
+ if(highwayData&&filters.highway){
+  const group=document.createElement("div");group.className="legend-group";
+  const heading=document.createElement("div");heading.className="legend-group-title";heading.textContent="GEOGRAPHIC REFERENCE · PE-30C";
+  const button=document.createElement("button");button.type="button";button.className="legend-spot";
+  button.textContent="VIEW LA PAMPA HIGHWAY ↗";
+  button.onclick=()=>map.fitBounds([[-13.12,-70.38],[-12.58,-69.17]],{padding:[36,36],maxZoom:10,animate:true});
   group.append(heading,button);holder.append(group);
  }
  const groups=[
@@ -385,7 +426,7 @@ const connectionFrames=[
  {title:"05 / 05 · THE RECORD",caption:"243 mining and 193 trafficking convictions reported for 2018–September 2023; separate case groups.",bounds:[[-13.21,-70.64],[-12.13,-69.05]],maxZoom:9}
 ];
 const connectionAnimationLayer=L.layerGroup().addTo(map);
-const connectionStageThreshold={mining:0,corridor:0,judicial:3,context:0,origins:1,historical:2,trafficking:2,institutions:3,convergence:4};
+const connectionStageThreshold={mining:0,highway:0,corridor:0,judicial:3,context:0,origins:1,historical:2,trafficking:2,institutions:3,convergence:4};
 let connectionStage=0,connectionPlaying=false,connectionTimer=null;
 function shownLayer(key){
  return !!filters[key]&&(current!==5||connectionStage>=(connectionStageThreshold[key]??0));
@@ -470,6 +511,7 @@ function drawConnectionOverlay(){
  if(connectionStage>=4&&shownLayer("convergence")){
   halo([-12.78825,-70.52333],"#f2f2f2",35,"3,6");
   halo([-13.0509,-70.5736],"#f2f2f2",34,"3,6");
+  halo([-12.85,-69.52],"#f2f2f2",35,"3,6");
  }
 }
 function scheduleConnectionAnimation(){
@@ -506,7 +548,7 @@ function render(resetView=true){
  document.getElementById("progress").textContent=(current+1)+" / 6";
  document.getElementById("prev").disabled=current===0;document.getElementById("next").disabled=current===5;
  document.getElementById("chapters").replaceChildren(...chapters.map((v,i)=>{const b=document.createElement("button");b.textContent=String(i+1).padStart(2,"0");b.className=i===current?"active":"";b.title=v.title;b.onclick=()=>go(i);return b}));
- layer.clearLayers();evidenceLayers.clear();drawEvidenceList();createLegend();updateOfficialCorridor();updateJudicialBoundary();
+ layer.clearLayers();evidenceLayers.clear();drawEvidenceList();createLegend();updateHighwayOverlay();updateOfficialCorridor();updateJudicialBoundary();
  // Start each chapter with Madre de Dios. The principal trafficking transfer case now stays within Madre de Dios.
  if(resetView){if(current===1)map.fitBounds([[-13.9,-77.2],[-11.8,-69.3]],{padding:[40,40],maxZoom:7,animate:true});else map.fitBounds(localBounds,{padding:[24,24],maxZoom:10,animate:true})}
  if(shownLayer("context"))regionSites.forEach((v,i)=>{const col=i<3?"#eeeeee":i===5||i===6?"#e2bb55":"#aaa";L.circleMarker(v.p,{radius:5,color:col,fillColor:col,fillOpacity:.9,weight:1})
