@@ -15,6 +15,18 @@
 .connection-controls .connection-numbers{display:flex;gap:5px;margin:12px 0 0}
 .connection-controls .connection-numbers button{min-width:29px;padding:5px 8px;font-size:10px}
 .connection-controls .connection-numbers button[aria-current=step]{background:#ddd;color:#111;border-color:#ddd}
+.connection-overview{border-top:1px solid #eee;border-bottom:1px solid #555;padding:17px 0 20px;margin:24px 0 12px}
+.connection-overview h2{font:400 11px/1.6 monospace;letter-spacing:.14em;color:#eee;margin:0 0 9px}
+.connection-overview p{font:11px/1.8 monospace;color:#bbb;margin:0 0 15px}
+.connection-overview .overview-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:15px}
+.connection-overview .overview-step{font:10px/1.55 monospace;color:#d8d8d8;border-left:2px solid #666;padding:8px 9px;background:#111}
+.connection-overview .overview-step:nth-child(1){border-color:#e2bb55}
+.connection-overview .overview-step:nth-child(2){border-color:#ee6694}
+.connection-overview .overview-step:nth-child(3){border-color:#8bbdf0}
+.connection-overview .overview-step:nth-child(4){border-color:#eee}
+.connection-overview .overview-buttons{display:flex;gap:8px;flex-wrap:wrap}
+.connection-overview button{font:10px/1.5 monospace;border:1px solid #777;background:transparent;color:#ddd;padding:9px 11px;cursor:pointer}
+.connection-overview button:hover,.connection-overview button:focus-visible{color:#fff;border-color:#fff}
 .leaflet-overlay-pane path.connection-flow{stroke-dasharray:5 10;animation:connection-flow 7s linear infinite}
 @keyframes connection-flow{to{stroke-dashoffset:-100}}
 @media(prefers-reduced-motion:reduce){.leaflet-overlay-pane path.connection-flow{animation:none}.connection-controls .connection-progress{transition:none}}
@@ -440,6 +452,21 @@ function pauseConnectionAnimation(){
  stopConnectionAnimation();
  drawConnectionControls();
 }
+function drawConnectionOverview(){
+ if(current!==4)return;
+ const host=document.getElementById("body"),section=document.createElement("section");
+ section.className="connection-overview";section.setAttribute("aria-label","Complete static evidence overview");
+ const title=document.createElement("h2");title.textContent="ALL THE CONNECTIONS · STATIC EVIDENCE MAP";
+ const note=document.createElement("p");note.textContent="All documented layers are available together before the animated sequence in Chapter 6. The mapped lines identify specific case or institutional relationships; the white rings mark places where separate records overlap. Neither proximity nor a connecting line proves one criminal network.";
+ const steps=document.createElement("div");steps.className="overview-steps";
+ ["01 · MINING & INTEROCEANIC HIGHWAY","02 · RECRUITMENT & EXPLOITATION","03 · COURTS & ACCOUNTABILITY","04 · DOCUMENTED LOCALITY OVERLAPS"].forEach(label=>{const item=document.createElement("div");item.className="overview-step";item.textContent=label;steps.append(item)});
+ const row=document.createElement("div");row.className="overview-buttons";
+ const show=document.createElement("button");show.type="button";show.textContent="SHOW ALL CONNECTIONS ↗";
+ show.onclick=()=>{Object.keys(filters).forEach(key=>{if(key!=="context")filters[key]=true});map.closePopup();render(false);map.fitBounds([[-13.65,-72.55],[-11.93,-68.91]],{padding:[30,30],maxZoom:8,animate:true})};
+ const wide=document.createElement("button");wide.type="button";wide.textContent="INCLUDE RECRUITMENT REGIONS ↗";
+ wide.onclick=()=>{Object.keys(filters).forEach(key=>{if(key!=="context")filters[key]=true});map.closePopup();render(false);map.fitBounds([[-13.9,-77.25],[-11.8,-68.91]],{padding:[30,30],maxZoom:7,animate:true})};
+ row.append(show,wide);section.append(title,note,steps,row);host.append(section);
+}
 function drawConnectionControls(){
  const caption=document.getElementById("connection-caption");
  if(current!==5){caption.hidden=true;return}
@@ -476,7 +503,9 @@ function focusConnectionFrame(){
 }
 function drawConnectionOverlay(){
  connectionAnimationLayer.clearLayers();
- if(current!==5)return;
+ if(current!==4&&current!==5)return;
+ const visibleStage=current===4?4:connectionStage;
+ const flowClass=current===5?"connection-flow":"";
  const halo=(coord,color,radius,dash)=>{
   L.circleMarker(coord,{radius,color,weight:2.2,opacity:.88,fill:false,fillOpacity:0,dashArray:dash||null,interactive:false}).addTo(connectionAnimationLayer);
  };
@@ -485,21 +514,21 @@ function drawConnectionOverlay(){
   halo([-12.78825,-70.52333],"#e2bb55",22,"5,6");
   halo([-12.30,-69.88],"#e2bb55",23,"5,6");
  }
- if(connectionStage>=1&&shownLayer("origins")){
+ if(visibleStage>=1&&shownLayer("origins")){
   recruitmentOrigins.forEach(d=>halo(d.coord,"#f4a1c2",18+Math.sqrt(d.count),"4,6"));
  }
- if(connectionStage>=2&&shownLayer("trafficking")){
+ if(visibleStage>=2&&shownLayer("trafficking")){
   halo([-12.84,-69.52],"#ee6694",28,"3,6");
   halo([-12.78825,-70.52333],"#ee6694",29,"3,6");
  }
- if(connectionStage>=3&&shownLayer("institutions")){
+ if(visibleStage>=3&&shownLayer("institutions")){
   const city=[-12.5933,-69.1891],pampa=[-12.84,-69.52],river=[-12.30,-69.88];
   const courtSource="https://justiciatv.pj.gob.pe/madre-de-dios-imponen-doce-anos-de-carcel-a-mujer-por-trata-de-menores/";
   const riverSource="https://www.gob.pe/institucion/mpfn/noticias/513999-fiscalia-especializada-en-materia-ambiental-ejecuta-duro-golpe-a-la-mineria-ilegal-en-madre-de-dios";
-  L.polyline([pampa,city],{color:"#80bdf7",weight:3.3,opacity:.96,className:"connection-flow"})
+  L.polyline([pampa,city],{color:"#80bdf7",weight:3.3,opacity:.96,className:flowClass})
     .bindPopup("<strong>La Pampa → Madre de Dios judicial record</strong><p>In 2017 the Tambopata court imposed a 12-year trafficking sentence for recruitment in Puerto Maldonado and exploitation in La Pampa. This line denotes the case-to-court relationship, not a travel path.</p><a target='_blank' rel='noopener' href='"+courtSource+"'>READ COURT RECORD ↗</a>")
     .addTo(connectionAnimationLayer);
-  L.polyline([river,city],{color:"#8bbdf0",weight:2.4,opacity:.9,dashArray:"3,9",className:"connection-flow"})
+  L.polyline([river,city],{color:"#8bbdf0",weight:2.4,opacity:.9,dashArray:"3,9",className:flowClass})
     .bindPopup("<strong>Pariamanu → Regional environmental prosecutors</strong><p>Madre de Dios FEMA documented an illegal-mining intervention at the Pariamanú River in 2021. The dotted line denotes regional prosecutorial responsibility; it does not assert a court conviction or plot travel.</p><a target='_blank' rel='noopener' href='"+riverSource+"'>READ PROSECUTOR REPORT ↗</a>")
     .addTo(connectionAnimationLayer);
   const courts="https://www.pj.gob.pe/wps/wcm/connect/cortesuprema/s_cortes_suprema_home/as_inicio/as_enlaces_destacados/as_imagen_prensa/as_notas_noticias/2023/cs_n-corte-justicia-madre-dios-dicto-243-condenas-delito-mineria-ilegal-2018-hasta-fecha";
@@ -508,7 +537,7 @@ function drawConnectionOverlay(){
     .bindPopup("<strong>Puerto Maldonado · regional justice system</strong><p>The Madre de Dios Superior Court reported 243 illegal-mining convictions and 193 trafficking convictions for 2018–September 2023. These are separate groups; the counts do not establish common perpetrators.</p><p>Environmental prosecutors and trafficking prosecutors have different functions. This circle denotes the regional judicial center, not every case's exact court.</p><a target='_blank' rel='noopener' href='"+courts+"'>READ COURT REPORT ↗</a>")
     .addTo(connectionAnimationLayer);
  }
- if(connectionStage>=4&&shownLayer("convergence")){
+ if(visibleStage>=4&&shownLayer("convergence")){
   halo([-12.78825,-70.52333],"#f2f2f2",35,"3,6");
   halo([-13.0509,-70.5736],"#f2f2f2",34,"3,6");
   halo([-12.85,-69.52],"#f2f2f2",35,"3,6");
@@ -543,14 +572,14 @@ function render(resetView=true){
  const c=chapters[current];
  document.getElementById("number").textContent="CHAPTER "+String(current+1).padStart(2,"0")+" / 06";
  document.getElementById("title").textContent=c.title;
- document.getElementById("body").replaceChildren(...c.body.map(t=>{const p=document.createElement("p");p.textContent=t;return p}));drawTraffickingStages();drawCourtStatistics();drawConnectionControls();
+ document.getElementById("body").replaceChildren(...c.body.map(t=>{const p=document.createElement("p");p.textContent=t;return p}));drawTraffickingStages();drawCourtStatistics();drawConnectionOverview();drawConnectionControls();
  const src=document.getElementById("sources");src.replaceChildren(...c.sources.map(([label,url])=>{const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener";a.textContent=label;return a}));
  document.getElementById("progress").textContent=(current+1)+" / 6";
  document.getElementById("prev").disabled=current===0;document.getElementById("next").disabled=current===5;
  document.getElementById("chapters").replaceChildren(...chapters.map((v,i)=>{const b=document.createElement("button");b.textContent=String(i+1).padStart(2,"0");b.className=i===current?"active":"";b.title=v.title;b.onclick=()=>go(i);return b}));
  layer.clearLayers();evidenceLayers.clear();drawEvidenceList();createLegend();updateHighwayOverlay();updateOfficialCorridor();updateJudicialBoundary();
  // Start each chapter with Madre de Dios. The principal trafficking transfer case now stays within Madre de Dios.
- if(resetView){if(current===1)map.fitBounds([[-13.9,-77.2],[-11.8,-69.3]],{padding:[40,40],maxZoom:7,animate:true});else map.fitBounds(localBounds,{padding:[24,24],maxZoom:10,animate:true})}
+ if(resetView){if(current===1)map.fitBounds([[-13.9,-77.2],[-11.8,-69.3]],{padding:[40,40],maxZoom:7,animate:true});else if(current===4)map.fitBounds([[-13.65,-72.55],[-11.93,-68.91]],{padding:[30,30],maxZoom:8,animate:true});else map.fitBounds(localBounds,{padding:[24,24],maxZoom:10,animate:true})}
  if(shownLayer("context"))regionSites.forEach((v,i)=>{const col=i<3?"#eeeeee":i===5||i===6?"#e2bb55":"#aaa";L.circleMarker(v.p,{radius:5,color:col,fillColor:col,fillOpacity:.9,weight:1})
  .bindPopup("<strong>"+v.name+"</strong><p>"+(i<3?"Andean geographic reference, not an accusation or case-specific recruitment site.":i===3?"Regional-capital reference, not an individual incident location.":i===4?"Transport junction, not evidence of criminal activity.":"Approximate mining study-area reference, not a verified individual mine.")+"</p>")
  .bindTooltip(v.name,{direction:"top"}).addTo(layer)});
