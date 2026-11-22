@@ -337,7 +337,7 @@ async function loadOfficialCorridor(){
 }
 loadOfficialCorridor();
 const sourceColors={mining:"#e2bb55",trafficking:"#ee6694",corruption:"#77b9ef"};
-let legendOpen=true;
+let legendOpen=false;
 function setLegendOpen(open){
  legendOpen=Boolean(open);
  document.getElementById("legend-content").hidden=!legendOpen;
@@ -346,7 +346,7 @@ function setLegendOpen(open){
  control.setAttribute("aria-expanded",String(legendOpen));
 }
 document.getElementById("legend-collapse").onclick=()=>setLegendOpen(!legendOpen);
-// The first chapter introduces the landscape; keep the detailed evidence key out of the way during the fly-in.
+// The evidence key stays closed by default in every chapter; readers can open it as needed.
 setLegendOpen(false);
 map.on("zoomstart",()=>{if(current===0)document.querySelector(".map-wrap").classList.add("intro-flying")});
 map.on("zoomend",()=>document.querySelector(".map-wrap").classList.remove("intro-flying"));
@@ -799,5 +799,5 @@ fetch("./data/madre_de_dios_mining_scar_outlines.geojson",{cache:"no-cache"})
  .then(j=>{if(!Array.isArray(j.features)||!j.features.length)throw Error("No outlines");regionalMiningData=j;
    document.getElementById("mining-data-status").textContent=j.features.length+" regional model-derived contours · Oct 2026 source snapshot · outlines only";render(false)})
  .catch(()=>{document.getElementById("mining-data-status").textContent="Regional contours pending; displaying smaller La Pampa preview.";});
-function go(i){stopConnectionAnimation();const wasIntro=current===0;current=Math.max(0,Math.min(7,i));activeEvidence=null;openEvidenceGroups.clear();openEvidenceGroups.add(["geography","mining","recruitment","institutions","connections","institutions","institutions","connections"][current]);if(current===2)traffickingStep=0;if(current===7)connectionStage=0;if(current===0)setLegendOpen(false);else if(wasIntro)setLegendOpen(true);render();if(current===7)startConnectionAnimation()};document.getElementById("prev").onclick=()=>go(current-1);document.getElementById("next").onclick=()=>go(current+1);render();
+function go(i){stopConnectionAnimation();current=Math.max(0,Math.min(7,i));activeEvidence=null;openEvidenceGroups.clear();openEvidenceGroups.add(["geography","mining","recruitment","institutions","connections","institutions","institutions","connections"][current]);if(current===2)traffickingStep=0;if(current===7)connectionStage=0;setLegendOpen(false);render();if(current===7)startConnectionAnimation()};document.getElementById("prev").onclick=()=>go(current-1);document.getElementById("next").onclick=()=>go(current+1);render();
 </script></body></html>
