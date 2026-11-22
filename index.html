@@ -692,6 +692,7 @@ function focusChapter2Place(name){
   return;
  }
  if(name==="Madre de Dios"||name==="Peruvian Amazon"){
+  map.closePopup();
   const bounds=judicialBoundaryData?L.geoJSON(judicialBoundaryData).getBounds():localBounds;
   if(bounds.isValid())map.flyToBounds(bounds,{padding:[35,35],maxZoom:7,duration:.9});
   return;
@@ -699,11 +700,10 @@ function focusChapter2Place(name){
  if(name==="Mining Corridor"){
   const layerBounds=officialCorridorData?L.geoJSON(officialCorridorData).getBounds():null;
   const hasBoundary=Boolean(layerBounds&&layerBounds.isValid());
-  map.flyToBounds(hasBoundary?layerBounds:localBounds,{padding:[35,35],maxZoom:9,duration:.9});
   const point=hasBoundary?layerBounds.getCenter():[-12.8,-69.9];
   const note=hasBoundary?"This is the government's designated small-scale mining zone; designation alone does not legalize individual operations.":"The official GIS boundary is unavailable. The map shows the broader mining region as geographic context, not an invented legal boundary.";
-  const popup=L.popup({maxWidth:290}).setLatLng(point).setContent("<strong>Mining Corridor</strong><p>"+note+"</p>");
-  map.once("moveend",()=>popup.openOn(map));
+  L.popup({maxWidth:290,autoPan:false}).setLatLng(point).setContent("<strong>Mining Corridor</strong><p>"+note+"</p>").openOn(map);
+  map.flyToBounds(hasBoundary?layerBounds:localBounds,{padding:[35,35],maxZoom:9,duration:.9});
  }
 }
 function chapter2Paragraph(text){
