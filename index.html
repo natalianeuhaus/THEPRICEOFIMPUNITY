@@ -333,7 +333,14 @@ async function loadOfficialCorridor(){
 loadOfficialCorridor();
 const sourceColors={mining:"#e2bb55",trafficking:"#ee6694",corruption:"#77b9ef"};
 let legendOpen=true;
-document.getElementById("legend-collapse").onclick=()=>{legendOpen=!legendOpen;document.getElementById("legend-content").hidden=!legendOpen;document.getElementById("legend-collapse").textContent=legendOpen?"−":"+";document.getElementById("legend-collapse").setAttribute("aria-expanded",String(legendOpen))};
+function setLegendOpen(open){
+ legendOpen=Boolean(open);
+ document.getElementById("legend-content").hidden=!legendOpen;
+ const control=document.getElementById("legend-collapse");
+ control.textContent=legendOpen?"−":"+";
+ control.setAttribute("aria-expanded",String(legendOpen));
+}
+document.getElementById("legend-collapse").onclick=()=>setLegendOpen(!legendOpen);
 function legendVisible(item){if(item.first>current)return false;if(item.evidenceKind==="geography")return shownLayer("highway");if(item.evidenceKind==="origin")return shownLayer("origins");if(item.id.startsWith("historical-"))return shownLayer("historical");if(item.convergence)return shownLayer("convergence");if(item.caseLayer)return shownLayer(item.caseLayer==="corruption"?"institutions":item.caseLayer);if(item.id.startsWith("regional-"))return shownLayer("mining");if(["pampa-mining","pariamanu","fuel"].includes(item.id))return shownLayer("mining");if(["marce","jnj","appeal"].includes(item.id))return shownLayer("institutions");return shownLayer("trafficking")}
 function createLegend(){
  const ctrl=document.getElementById("legend-controls");ctrl.replaceChildren();
@@ -742,5 +749,5 @@ fetch("./data/madre_de_dios_mining_scar_outlines.geojson",{cache:"no-cache"})
  .then(j=>{if(!Array.isArray(j.features)||!j.features.length)throw Error("No outlines");regionalMiningData=j;
    document.getElementById("mining-data-status").textContent=j.features.length+" regional model-derived contours · Oct 2026 source snapshot · outlines only";render(false)})
  .catch(()=>{document.getElementById("mining-data-status").textContent="Regional contours pending; displaying smaller La Pampa preview.";});
-function go(i){stopConnectionAnimation();current=Math.max(0,Math.min(7,i));activeEvidence=null;openEvidenceGroups.clear();openEvidenceGroups.add(["geography","mining","recruitment","institutions","connections","institutions","institutions","connections"][current]);if(current===2)traffickingStep=0;if(current===7)connectionStage=0;render();if(current===7)startConnectionAnimation()};document.getElementById("prev").onclick=()=>go(current-1);document.getElementById("next").onclick=()=>go(current+1);render();
+function go(i){stopConnectionAnimation();current=Math.max(0,Math.min(7,i));activeEvidence=null;openEvidenceGroups.clear();openEvidenceGroups.add(["geography","mining","recruitment","institutions","connections","institutions","institutions","connections"][current]);if(current===2)traffickingStep=0;if(current===7)connectionStage=0;if(current===0)setLegendOpen(true);render();if(current===7)startConnectionAnimation()};document.getElementById("prev").onclick=()=>go(current-1);document.getElementById("next").onclick=()=>go(current+1);render();
 </script></body></html>
