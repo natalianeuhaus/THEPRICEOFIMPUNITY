@@ -52,8 +52,8 @@
 @keyframes highway-geography-reveal{from{opacity:0}to{opacity:1}}
 .map-wrap.chapter-intro path.reveal-highway{animation:highway-geography-reveal 2.8s ease-out 1.4s both}
 @media(prefers-reduced-motion:reduce){.map-wrap.chapter-intro path.reveal-highway{animation:none!important}}
-/* Leaflet scales vector paths during flyToBounds, which can briefly enlarge circular map markers. */
-.map-wrap.chapter-intro.intro-flying .leaflet-pane svg{visibility:hidden!important}
+/* During the introductory flyover, hide only scalable dots. Keep the separately paneled Madre de Dios boundary and Interoceanic Highway visible. */
+.map-wrap.chapter-intro.intro-flying .leaflet-overlay-pane svg{visibility:hidden!important}
 </style></head><body id="top"><header><a href="#top"><strong>THE PRICE OF GOLD</strong></a><nav><a href="#chapters">THE INVESTIGATION</a><a href="#about">ABOUT</a></nav></header><main><article><div class="eyebrow">MADRE DE DIOS, PERU · 2019–2025 · HISTORICAL CONTEXT</div><p class="project-subtitle">Deforestation, Sex Trafficking, and Impunity in the Peruvian Amazon</p><div class="chapters" id="chapters"></div><div class="eyebrow" id="number"></div><h1 id="title"></h1><div id="body"></div><div class="evidence-section"><div class="evidence-heading"><span class="eyebrow">EVIDENCE INDEX</span><span id="evidence-count"></span></div><div class="map-instruction">Open a category, then select a record to zoom to its source-linked location. Earlier chapters remain available.</div><div class="evidence-grid" id="evidence-list"></div><div class="evidence-detail" id="evidence-detail" hidden></div></div><div class="source"><div class="eyebrow">EVIDENCE & SOURCES</div><div id="sources"></div></div><div class="controls"><button id="prev">← PREVIOUS</button><span class="eyebrow" id="progress"></span><button id="next">NEXT →</button></div><section class="about-note" id="about"><div class="eyebrow">ABOUT THE INVESTIGATION</div>
 <p><em>The Price of Gold</em> examines gold mining, deforestation, sex trafficking, and the institutions responsible for enforcing the law in Madre de Dios. Its objective is to establish what can be documented, identify what remains unknown, and investigate where the evidence converges—without assuming that overlapping activities were coordinated.</p>
 <p>The investigation asks whether the persistence of illegal mining and human exploitation can be explained solely by the challenges of governing a remote region, or whether abuses of power and failures of oversight have helped sustain them. It draws on satellite imagery, judicial records, prosecutorial investigations, government audits, and independent reporting to trace the documented relationships between economic incentives, environmental destruction, exploitation, and institutional decisions.</p>
@@ -327,12 +327,15 @@ caseFiles.forEach(r=>evidence.push({id:"case-"+r.id,first:r.layer==="mining"?1:r
 const filters={mining:true,highway:true,corridor:true,judicial:true,origins:true,historical:true,trafficking:true,institutions:true,convergence:true,context:true};
 const courtDistrictSource="https://www.pj.gob.pe/wps/wcm/connect/CorteSuperiorMadreDiosPJ/s_csj_madre_de_dios_nuevo/as_corte_superior_madre_de_dios/as_conocenos/as_historia/";
 const regionalBoundarySource="https://github.com/nfg2kr-source/inei-explorador/blob/main/data/geo/peru_adm1_geoboundaries_simplified.geojson";
+map.createPane("madre-de-dios-outline-pane");
+map.getPane("madre-de-dios-outline-pane").style.zIndex="410";
 const judicialBoundaryLayer=L.layerGroup().addTo(map);
 let judicialBoundaryData=null;
 function updateJudicialBoundary(){
  judicialBoundaryLayer.clearLayers();
  if(!shownLayer("judicial")||!judicialBoundaryData)return;
  L.geoJSON(judicialBoundaryData,{
+  pane:"madre-de-dios-outline-pane",
   style:{color:"#77b9ef",weight:2,opacity:.83,fill:false,fillOpacity:0},
   onEachFeature:(_feature,shape)=>{
    shape.bindPopup("<strong>Madre de Dios · regional boundary</strong><p>This outline approximates the boundary of the Madre de Dios department, the geographical focus of this investigation. The Superior Court of Justice, based in Puerto Maldonado, serves the region. The outline is geographic context; it does not show specific mining sites, trafficking incidents, or trial locations.</p><a target='_blank' rel='noopener' href='"+courtDistrictSource+"'>COURT JURISDICTION ↗</a><p><a target='_blank' rel='noopener' href='"+regionalBoundarySource+"'>BOUNDARY DATA · geoBoundaries gbOpen ↗</a></p>",{maxWidth:320});
