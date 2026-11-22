@@ -81,10 +81,10 @@ const chapters=[
 
 ];
 const map=L.map("map",{zoomControl:false,scrollWheelZoom:false}).setView([-13.0,-70.0],6);L.control.zoom({position:"bottomright"}).addTo(map);L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:18,attribution:"Imagery © Esri"}).addTo(map);
-const layer=L.layerGroup().addTo(map);let regionalMiningData=null;const localBounds=L.latLngBounds([[-13.22,-70.63],[-12.10,-69.07]]);const regionSites=[{name:"Cusco · Andean connection",p:[-13.5319,-71.9675]},{name:"Abancay · Apurímac",p:[-13.6339,-72.8814]},{name:"Puerto Maldonado · regional capital",p:[-12.5933,-69.1891]},{name:"Mazuko · highway junction",p:[-13.096,-70.367]},{name:"La Pampa · mining and highway sector",p:[-12.99,-69.90]},{name:"Pariamanu · documented mining pressure",p:[-12.30,-69.88]}];const introTowns={
+const layer=L.layerGroup().addTo(map);let regionalMiningData=null;const localBounds=L.latLngBounds([[-13.22,-70.63],[-12.10,-69.07]]);const regionSites=[{name:"Cusco · Andean connection",p:[-13.5319,-71.9675]},{name:"Abancay · Apurímac",p:[-13.6339,-72.8814]},{name:"Puerto Maldonado · regional capital",p:[-12.5933,-69.1891]},{name:"Mazuko · highway junction",p:[-13.096,-70.367]},{name:"La Pampa · Interoceanic Highway sector",p:[-12.8965,-69.996]},{name:"Pariamanu · documented mining pressure",p:[-12.30,-69.88]}];const introTowns={
  "Cusco":{coord:[-13.5319,-71.9675],zoom:9,context:"Andean connection to the Interoceanic road network; a geographic reference, not a trafficking origin."},
  "Mazuko":{coord:[-13.096,-70.367],zoom:11,context:"Highway junction in Madre de Dios; this marker is a settlement reference, not evidence of an individual incident."},
- "La Pampa":{coord:[-12.99,-69.90],zoom:10,context:"MAAP-published reference (-12.99, -69.90) for the La Pampa mining-deforestation area, south of the highway. This is not a geocoded town center, a bar or an individual mine."},
+ "La Pampa":{coord:[-12.8965,-69.996],zoom:11,context:"Approximate highway-side reference for La Pampa, along the Interoceanic Highway. Mining scars extend south of the road toward the Tambopata buffer area (MAAP study reference: -12.99, -69.90). This is not a surveyed town center or a precise case location."},
  "Puerto Maldonado":{coord:[-12.5933,-69.1891],zoom:11,context:"Capital of Madre de Dios and a major regional transport center."}
 };
 const chapterPlaceNames=[
