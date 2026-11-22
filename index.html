@@ -198,7 +198,7 @@ function drawCourtStatistics(){
  section.append(makeCourtBar("Acquittals",29,66,"acquittals",()=>focusOutcome("acquittals"),false));
  const warning=document.createElement("p");warning.className="stats-caveat";warning.textContent="37 guilty judgments and 29 acquittals, as reported by Convoca. These judgment outcomes cover a DIFFERENT period and group of cases from the case-file counts. Bars are not an attrition or conviction-rate calculation.";section.append(warning);
  const sourceB=document.createElement("a");sourceB.href=judgmentsSource;sourceB.className="stats-source";sourceB.target="_blank";sourceB.rel="noopener";sourceB.textContent="CONVOCA · JUDICIAL OUTCOMES ↗";section.append(sourceB);
- const paragraphs=[...host.children].filter(el=>el.tagName==="P");if(paragraphs[2])paragraphs[2].after(section);else host.prepend(section);
+ const paragraphs=[...host.children].filter(el=>el.tagName==="P");if(paragraphs[3])paragraphs[3].after(section);else host.prepend(section);
 }
 function drawAccountabilityStatistics(){
  if(current!==5)return;
