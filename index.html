@@ -603,15 +603,22 @@ function drawTraffickingStages(){
 // These representative map points show the named REGIONS, not victims' hometowns
 // or geocoded sites of recruitment. All figures are for trafficking of any type.
 const recruitmentOrigins=[
+// Regional capitals or representative points are used only for visual orientation;
+// these coordinates do not identify where any individual was recruited.
  {name:"Cusco region",count:19,coord:[-13.5319,-71.9675]},
  {name:"Madre de Dios region",count:14,coord:[-12.65,-69.76]},
- {name:"Lima region",count:8,coord:[-12.0464,-77.0428]}
+ {name:"Lima region",count:8,coord:[-12.0464,-77.0428]},
+ {name:"Puno region",count:1,coord:[-15.8402,-70.0219]},
+ {name:"Huánuco region",count:1,coord:[-9.9306,-76.2422]},
+ {name:"Apurímac region",count:1,coord:[-13.6339,-72.8814]},
+ {name:"Ucayali region",count:1,coord:[-8.3791,-74.5539]},
+ {name:"Junín region",count:1,coord:[-12.0651,-75.2049]}
 ];
 const recruitmentSource="https://cdn.www.gob.pe/uploads/document/file/3255904/La%20respuesta%20del%20Ministerio%20P%C3%BAblico%20frente%20al%20delito%20de%20trata%20de%20personas%20%282%29.pdf.pdf";
 recruitmentOrigins.forEach((d,i)=>evidence.push({
  id:"origin-"+i,first:2,evidenceKind:"origin",type:"RECRUITMENT REGION · 2020–2021",
  title:d.name+" — "+d.count+" people in sample",
- summary:"Recruitment region in a public prosecutor sample of 46 identified trafficking victims in Madre de Dios (April 2020–June 2021). This dot represents the named region, not a verified recruitment address, a survivor's location, or exclusively sex trafficking. Other regions with one recorded person each are not separately plotted.",
+ summary:"Recruitment region in a public prosecutor sample of 46 identified trafficking victims in Madre de Dios (April 2020–June 2021). This dot represents the named region, not a verified recruitment address, a survivor's location, or exclusively sex trafficking. All eight reported regions are shown with identical symbols, positioned at representative regional locations rather than actual recruitment sites.",
  coord:d.coord,url:recruitmentSource
 }));
 function drawTraffickingStageOverlay(){
@@ -620,7 +627,7 @@ function drawTraffickingStageOverlay(){
  if(shownLayer("origins"))recruitmentOrigins.forEach((d,i)=>{
   const marker=L.marker(d.coord,{icon:recruitmentRegionIcon})
    .bindTooltip(d.name+" · "+d.count,{permanent:true,direction:"top",offset:[0,-9],className:"stage-place-label"})
-   .bindPopup("<strong>"+d.name+" · "+d.count+" identified victims</strong><p>Recruitment region in a sample of 46 trafficking victims identified in Madre de Dios, April 2020–June 2021. The marker is a regional reference, not a confirmed recruitment address or the location of any survivor. Data cover trafficking of all kinds, not only sexual exploitation.</p><p>The remaining five victims were recruited in Puno, Huánuco, Apurímac, Ucayali and Junín (one each). These are not shown as additional lines.</p><a href='"+recruitmentSource+"' target='_blank' rel='noopener'>Public Prosecutor report</a>");
+   .bindPopup("<strong>"+d.name+" · "+d.count+" identified victims</strong><p>Recruitment region in a sample of 46 trafficking victims identified in Madre de Dios, April 2020–June 2021. The marker is a regional reference, not a confirmed recruitment address or the location of any survivor. Data cover trafficking of all kinds, not only sexual exploitation.</p><p>The other five reported regions are Puno, Huánuco, Apurímac, Ucayali and Junín (one person each); all eight regions appear as separate squares on this map.</p><a href='"+recruitmentSource+"' target='_blank' rel='noopener'>Public Prosecutor report</a>");
   registerEvidence("origin-"+i,marker).addTo(traffickingStageLayer);
  });
  if(traffickingStep>=1&&shownLayer("historical")){
@@ -666,7 +673,7 @@ function focusTraffickingStage(i){
  const sequence=++stageFlashSequence;
  const flash=()=>{if(sequence===stageFlashSequence&&current===2)flashTraffickingMapMarkers(i)};
  map.once("moveend",flash);
- if(i===0)map.fitBounds([[-13.9,-77.2],[-11.8,-69.3]],{padding:[40,40],maxZoom:7,animate:true});
+ if(i===0)map.fitBounds(L.latLngBounds(recruitmentOrigins.map(d=>d.coord)).pad(.12),{padding:[45,45],maxZoom:7,animate:true});
  else if(i===1)map.fitBounds(localBounds,{padding:[35,35],maxZoom:9,animate:true});
  else map.fitBounds(localBounds,{padding:[45,45],maxZoom:9,animate:true});
  setTimeout(flash,1100);
