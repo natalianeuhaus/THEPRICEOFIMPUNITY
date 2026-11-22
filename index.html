@@ -116,6 +116,7 @@ function drawChapterPlaces(){
  }
 }
 function focusIntroTown(name){
+ cancelIntroFlyover();
  const town=introTowns[name];if(!town)return;
  if(!filters.context){filters.context=true;render(false)}
  map.closePopup();
@@ -816,7 +817,22 @@ function makeDrivers(items){
  });
  return section
 }
+let introFlyTimer=null;
+function cancelIntroFlyover(){
+ if(introFlyTimer!==null){clearTimeout(introFlyTimer);introFlyTimer=null}
+}
+function scheduleIntroFlyover(){
+ cancelIntroFlyover();
+ if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+ introFlyTimer=setTimeout(()=>{
+  introFlyTimer=null;
+  if(current!==0)return;
+  // Start with the four highway towns in view, then fly toward the mining frontier.
+  map.flyTo([-12.87,-70.02],9,{duration:3.6,easeLinearity:.18});
+ },1300);
+}
 function render(resetView=true){
+ if(resetView)cancelIntroFlyover();
  document.querySelector(".map-wrap").classList.toggle("chapter-intro",current===0);
  const c=chapters[current];
  document.querySelector(".evidence-section").hidden=current===0;
@@ -874,6 +890,7 @@ function render(resetView=true){
  if(current>=2&&shownLayer("historical")){const locations=evidence.filter(e=>e.id.startsWith("historical-"));locations.forEach(e=>{const rad=8+Math.sqrt(e.count)*.85;const shape=L.circleMarker(e.coord,{radius:rad,color:"#ee6694",weight:2.5,opacity:1,fillColor:"#ee6694",fillOpacity:.08}).bindPopup("<strong>"+e.title+"</strong><p>"+e.summary+"</p><a href=\""+e.url+"\" target=\"_blank\" rel=\"noopener\">Read original study</a>");registerEvidence(e.id,shape).addTo(layer)})}
  if(shownLayer("convergence"))convergence.filter(n=>n.first<=current).forEach(n=>{const ring=L.circleMarker(n.coord,{radius:29,color:"#eeeeee",weight:2.3,opacity:.96,dashArray:"3,6",fillOpacity:0}).bindPopup(convergencePopup(n),{maxWidth:350,maxHeight:330,autoPanPaddingTopLeft:[20,80]});registerEvidence(n.id,ring).addTo(layer)});
  caseFiles.forEach(r=>{const first=r.layer==="mining"?1:r.layer==="trafficking"?2:3;if(first>current)return;const kind=r.layer==="corruption"?"institutions":r.layer;if(!shownLayer(kind))return;caseDot(r)});drawTraffickingStageOverlay();drawCourtMap();drawConnectionOverlay();
+ if(resetView&&current===0)scheduleIntroFlyover();
 }
 // The regional vector file is built reproducibly from the 2026 public mining scar raster.
 fetch("./data/madre_de_dios_mining_scar_outlines.geojson",{cache:"no-cache"})
