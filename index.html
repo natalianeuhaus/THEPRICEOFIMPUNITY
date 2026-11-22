@@ -669,11 +669,12 @@ function makeDrivers(items){
 function render(resetView=true){
  document.querySelector(".map-wrap").classList.toggle("chapter-intro",current===0);
  const c=chapters[current];
+ document.querySelector(".evidence-section").hidden=current===0;
  document.getElementById("number").textContent="CHAPTER "+String(current+1).padStart(2,"0")+" / 08";
  document.getElementById("title").textContent=c.title;
  const body=document.getElementById("body");
  const paragraphs=c.body.map(t=>{const p=document.createElement("p");p.textContent=t;return p});
- if(c.drivers)paragraphs.splice(3,0,makeDrivers(c.drivers));
+ if(c.drivers)paragraphs.push(makeDrivers(c.drivers));
  const guideJump=document.createElement("a");guideJump.href="#source-guide";guideJump.className="guide-jump";guideJump.textContent="WHO ARE THESE SOURCES AND INSTITUTIONS? · OPEN GUIDE ↓";
  paragraphs.push(guideJump);
  body.replaceChildren(...paragraphs);drawTraffickingStages();drawCourtStatistics();drawAccountabilityStatistics();drawConnectionOverview();drawConnectionControls();
