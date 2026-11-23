@@ -45,6 +45,7 @@
 .connection-overview button{font:10px/1.5 monospace;border:1px solid #777;background:transparent;color:#ddd;padding:9px 11px;cursor:pointer}
 .connection-overview button:hover,.connection-overview button:focus-visible{color:#fff;border-color:#fff}
 .leaflet-overlay-pane path.connection-flow{stroke-dasharray:5 10;animation:connection-flow 7s linear infinite}
+.leaflet-chapter4-jurisdiction-pane path.institution-jurisdiction-hit{pointer-events:stroke}
 .leaflet-chapter4-jurisdiction-pane path.institution-jurisdiction-flow{stroke-dasharray:2 10;stroke-linecap:round;animation:institution-jurisdiction-flow 9s linear infinite}
 @keyframes institution-jurisdiction-flow{to{stroke-dashoffset:-120}}
 @media(prefers-reduced-motion:reduce){.leaflet-chapter4-jurisdiction-pane path.institution-jurisdiction-flow{animation:none}}
@@ -879,7 +880,7 @@ function focusConnectionFrame(){
  map.flyToBounds(L.latLngBounds(f.bounds),{padding:[40,40],maxZoom:f.maxZoom,duration:1.7});
 }
 const institutionJurisdictionPane=map.createPane("chapter4-jurisdiction");
-institutionJurisdictionPane.style.zIndex="395";
+institutionJurisdictionPane.style.zIndex="425";
 const institutionJurisdictionLayer=L.layerGroup().addTo(map);
 function drawInstitutionJurisdictionLinks(){
  institutionJurisdictionLayer.clearLayers();
@@ -893,7 +894,12 @@ function drawInstitutionJurisdictionLinks(){
    +"<p><a href='"+courtDistrictSource+"' target='_blank' rel='noopener'>REGIONAL COURT · JURISDICTION ↗</a></p>";
   L.polyline([record.coord,city],{
    pane:"chapter4-jurisdiction",color:"#8bbdf0",weight:2.5,opacity:.88,
-   dashArray:"2,10",className:"institution-jurisdiction-flow"
+   dashArray:"2,10",className:"institution-jurisdiction-flow",interactive:false
+  }).addTo(institutionJurisdictionLayer);
+  // A larger transparent stroke keeps the thin animated line usable over dense mining outlines.
+  L.polyline([record.coord,city],{
+   pane:"chapter4-jurisdiction",color:"#8bbdf0",weight:14,opacity:0,
+   className:"institution-jurisdiction-hit"
   }).bindTooltip(place+" · regional justice connection",{sticky:true,direction:"top"})
    .bindPopup(popup,{maxWidth:325}).addTo(institutionJurisdictionLayer);
  });
