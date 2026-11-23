@@ -387,6 +387,7 @@ const miningRegions=[
 evidence.push(...miningRegions);
 caseFiles.forEach(r=>evidence.push({id:"case-"+r.id,first:r.layer==="mining"?1:r.layer==="trafficking"?2:3,type:(r.layer==="mining"?"MINING":r.layer==="trafficking"?"TRAFFICKING":"INSTITUTIONAL")+" · "+r.year,title:r.title,summary:r.status+". "+r.description,coord:[r.lat,r.lng],url:r.url,caseLayer:r.layer}));
 const filters={mining:true,highway:true,corridor:true,judicial:true,origins:true,historical:true,trafficking:true,institutions:true,convergence:true,context:true};
+let chapter3HistoricalHidden=true;
 const courtDistrictSource="https://www.pj.gob.pe/wps/wcm/connect/CorteSuperiorMadreDiosPJ/s_csj_madre_de_dios_nuevo/as_corte_superior_madre_de_dios/as_conocenos/as_historia/";
 const regionalBoundarySource="https://github.com/nfg2kr-source/inei-explorador/blob/main/data/geo/peru_adm1_geoboundaries_simplified.geojson";
 map.createPane("madre-de-dios-outline-pane");
@@ -570,8 +571,8 @@ function createLegend(){
  ];
  opts.filter(o=>current===7||current>=(chapterLayerThreshold[o.key]??0)).forEach(o=>{
   const el=document.createElement("label");el.className="legend-check";
-  const check=document.createElement("input");check.type="checkbox";check.checked=filters[o.key];check.setAttribute("aria-label","Toggle "+o.label);
-  check.onchange=()=>{filters[o.key]=check.checked;if(activeEvidence){const e=evidence.find(x=>x.id===activeEvidence);if(e&&!legendVisible(e))activeEvidence=null}render(false)};
+  const check=document.createElement("input");check.type="checkbox";check.checked=o.key==="historical"&&current===2?filters.historical&&!chapter3HistoricalHidden:filters[o.key];check.setAttribute("aria-label","Toggle "+o.label);
+  check.onchange=()=>{if(o.key==="historical"&&current===2)chapter3HistoricalHidden=!check.checked;filters[o.key]=check.checked;if(activeEvidence){const e=evidence.find(x=>x.id===activeEvidence);if(e&&!legendVisible(e))activeEvidence=null}render(false)};
   const swatch=document.createElement("i");swatch.className="legend-swatch sym-"+o.symbol;swatch.setAttribute("aria-hidden","true");
   if(o.key==="highway"){swatch.style.border="0";swatch.style.borderTop="3px solid #f7e7be";swatch.style.borderRadius="0";swatch.style.height="0"}
   const txt=document.createElement("span");txt.textContent=o.label;
@@ -605,7 +606,7 @@ function createLegend(){
  groups.forEach(([label,items])=>{const visible=items.filter(legendVisible);if(!visible.length)return;const section=document.createElement("div");section.className="legend-group";const title=document.createElement("div");title.className="legend-group-title";title.textContent=label;section.append(title);visible.forEach(item=>{const btn=document.createElement("button");btn.type="button";btn.className="legend-spot";btn.setAttribute("aria-pressed",String(activeEvidence===item.id));const name=document.createElement("span");name.textContent=item.count!==undefined?item.title.split(" — ")[0]:item.title;const value=document.createElement("span");value.textContent=item.count!==undefined?String(item.count):"↗";btn.append(name,value);btn.onclick=()=>selectEvidence(item.id);section.append(btn)});holder.append(section)});
 }
 function registerEvidence(id,shape){evidenceLayers.set(id,shape);shape.on("click",()=>selectEvidence(id,true));return shape}
-function selectEvidence(id,move=true){const item=evidence.find(x=>x.id===id);if(!item||item.first>current)return;activeEvidence=id;drawEvidenceList();createLegend();if(move){if(item.bounds)map.fitBounds(item.bounds,{padding:[65,65],maxZoom:9,animate:true});else map.flyTo(item.coord,item.evidenceKind==="origin"?7:Math.max(map.getZoom(),11),{duration:.85});const shape=evidenceLayers.get(id);if(shape){map.once("moveend",()=>{if(evidenceLayers.get(id)===shape)shape.openPopup()});shape.openPopup()}}}
+function selectEvidence(id,move=true){const item=evidence.find(x=>x.id===id);if(!item||item.first>current)return;if(current===2&&id.startsWith("historical-")&&!shownLayer("historical")){filters.historical=true;chapter3HistoricalHidden=false;render(false)}activeEvidence=id;drawEvidenceList();createLegend();if(move){if(item.bounds)map.fitBounds(item.bounds,{padding:[65,65],maxZoom:9,animate:true});else map.flyTo(item.coord,item.evidenceKind==="origin"?7:Math.max(map.getZoom(),11),{duration:.85});const shape=evidenceLayers.get(id);if(shape){map.once("moveend",()=>{if(evidenceLayers.get(id)===shape)shape.openPopup()});shape.openPopup()}}}
 const evidenceCategories=[
   {id:"geography",label:"01 · THE HIGHWAY & GEOGRAPHY",test:e=>e.evidenceKind==="geography"},
  {id:"mining",label:"02 · MINING & LAND",test:e=>e.id.startsWith("regional-")||["pampa-mining","pariamanu"].includes(e.id)||e.caseLayer==="mining"},
@@ -758,6 +759,7 @@ const connectionStageThreshold={mining:0,highway:0,corridor:0,judicial:0,context
 let connectionStage=0,connectionPlaying=false,connectionTimer=null;
 function shownLayer(key){
  if(key==="corridor")return false;
+ if(key==="historical"&&current===2&&chapter3HistoricalHidden)return false;
  return !!filters[key]&&(current===7?connectionStage>=(connectionStageThreshold[key]??0):current>=(chapterLayerThreshold[key]??0));
 }
 function stopConnectionAnimation(){
@@ -981,7 +983,7 @@ function focusChapter3Place(name){
  const id=ids[name],record=evidence.find(item=>item.id===id);
  if(!record)return;
  if(record.id.startsWith("regional-")&&!filters.mining){filters.mining=true;render(false)}
- if(record.id.startsWith("historical-")&&!filters.historical){filters.historical=true;render(false)}
+ if(record.id.startsWith("historical-")&&!shownLayer("historical")){filters.historical=true;chapter3HistoricalHidden=false;render(false)}
  map.closePopup();
  map.setView(record.coord,9,{animate:false});
  const marker=evidenceLayers.get(id);
@@ -1085,7 +1087,7 @@ function scheduleIntroFlyover(){
 function render(resetView=true){
  if(resetView)cancelIntroFlyover();
  // Enter Chapter 3 at the recruitment step, including on a restored visit.
- if(resetView&&current===2){traffickingStep=0;rememberReadingPosition()}
+ if(resetView&&current===2){traffickingStep=0;chapter3HistoricalHidden=true;rememberReadingPosition()}
  document.querySelector(".map-wrap").classList.toggle("chapter-intro",current===0);
  const c=chapters[current];
  document.querySelector(".evidence-section").hidden=current===0;
