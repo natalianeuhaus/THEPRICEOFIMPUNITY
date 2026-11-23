@@ -644,12 +644,12 @@ function createLegend(){
   group.append(heading,button);holder.append(group);
  }
  const groups=[
- ["02 · MINING FRONTIER",indexedEvidence.filter(e=>e.id.startsWith("regional-")||["pampa-mining","pariamanu"].includes(e.id)||e.caseLayer==="mining")],
- ["03 · RECRUITMENT & DOCUMENTED CONNECTIONS",indexedEvidence.filter(e=>e.evidenceKind==="origin"||e.id==="puerto-la-pampa")],
- ["03 · HISTORICAL TRAFFICKING COUNTS · 2015–2017",indexedEvidence.filter(e=>e.id.startsWith("historical-"))],
- ["03 · EXPLOITATION & RESCUE RECORDS",indexedEvidence.filter(e=>e.caseLayer==="trafficking")],
- ["04 · JUSTICE & INSTITUTIONAL RECORDS",indexedEvidence.filter(e=>e.caseLayer==="corruption")],
- ["05 · DOCUMENTED LOCALITY OVERLAPS",indexedEvidence.filter(e=>e.convergence)]
+ ["02 · MINING FRONTIER",indexedEvidence().filter(e=>e.id.startsWith("regional-")||["pampa-mining","pariamanu"].includes(e.id)||e.caseLayer==="mining")],
+ ["03 · RECRUITMENT & DOCUMENTED CONNECTIONS",indexedEvidence().filter(e=>e.evidenceKind==="origin"||e.id==="puerto-la-pampa")],
+ ["03 · HISTORICAL TRAFFICKING COUNTS · 2015–2017",indexedEvidence().filter(e=>e.id.startsWith("historical-"))],
+ ["03 · EXPLOITATION & RESCUE RECORDS",indexedEvidence().filter(e=>e.caseLayer==="trafficking")],
+ ["04 · JUSTICE & INSTITUTIONAL RECORDS",indexedEvidence().filter(e=>e.caseLayer==="corruption")],
+ ["05 · DOCUMENTED LOCALITY OVERLAPS",indexedEvidence().filter(e=>e.convergence)]
  ];
  groups.forEach(([label,items])=>{const visible=items.filter(legendVisible);if(!visible.length)return;const section=document.createElement("div");section.className="legend-group";const title=document.createElement("div");title.className="legend-group-title";title.textContent=label;section.append(title);visible.forEach(item=>{const btn=document.createElement("button");btn.type="button";btn.className="legend-spot";btn.setAttribute("aria-pressed",String(activeEvidence===item.id));const name=document.createElement("span");name.textContent=item.count!==undefined?item.title.split(" — ")[0]:item.title;const value=document.createElement("span");value.textContent=item.count!==undefined?String(item.count):"↗";btn.append(name,value);btn.onclick=()=>selectEvidence(item.id);section.append(btn)});holder.append(section)});
 }
@@ -665,11 +665,11 @@ const evidenceCategories=[
 // One source was sometimes indexed twice (as a standalone point and as a case file).
 // Keep both existing map markers intact, but present each source-linked case once in the index.
 const evidenceIndexAliases={"marce":"case-c1","jnj":"case-c2","appeal":"case-c3","puerto":"case-t2"};
-const indexedEvidence=evidence.filter(e=>!Object.prototype.hasOwnProperty.call(evidenceIndexAliases,e.id));
+const indexedEvidence=()=>evidence.filter(e=>!Object.prototype.hasOwnProperty.call(evidenceIndexAliases,e.id));
 const openEvidenceGroups=new Set(["geography"]);
 function categoryForEvidence(e){return evidenceCategories.find(g=>g.test(e))?.id||"other"}
 function drawEvidenceList(){
- const list=document.getElementById("evidence-list"),shown=indexedEvidence.filter(x=>x.first<=current);
+ const list=document.getElementById("evidence-list"),shown=indexedEvidence().filter(x=>x.first<=current);
  document.getElementById("evidence-count").textContent=shown.length+" MAPPED RECORDS";
  if(activeEvidence){const selected=shown.find(x=>x.id===activeEvidence);if(selected)openEvidenceGroups.add(categoryForEvidence(selected))}
  const groups=evidenceCategories.map(cat=>({...cat,items:shown.filter(cat.test)})).filter(g=>g.items.length);
