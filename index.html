@@ -349,8 +349,8 @@ function drawCourtMap(){
  .bindTooltip(d.name,{direction:"top",className:"stage-place-label"})
  .bindPopup("<strong>"+d.name+"</strong><p>"+d.detail+"</p><a href='"+d.url+"' target='_blank' rel='noopener'>Read source</a>")
  .addTo(courtMapLayer));
- if(current!==3)L.polyline([[-13.5319,-71.9675],[-12.78825,-70.52333]],{color:"#8bbdf0",weight:2,dashArray:"3,7",opacity:.9})
- .bindPopup("<strong>Cusco court case · Delta Uno exploitation</strong><p>Judicial association only: the 2023 Cusco conviction involved exploitation in Delta Uno, Madre de Dios. This dashed line is not a route travelled by victims.</p><a href='"+cuscoDeltaCourtSource+"' target='_blank' rel='noopener'>Cusco prosecutor announcement</a>")
+ if(current>=4)L.polyline([[-12.78825,-70.52333],[-12.5933,-69.1891]],{color:"#8bbdf0",weight:2,dashArray:"3,7",opacity:.9})
+ .bindPopup("<strong>Delta Uno ↔ Puerto Maldonado · Madre de Dios courts</strong><p>In 2018, the Tambopata Appeals Court upheld a trafficking conviction involving a girl recruited in Calca, Cusco, and exploited in Delta Uno. This dashed line links the documented exploitation locality to the regional justice center in Puerto Maldonado; it is not a travel route or the location of the survivor.</p><a href='https://www.pj.gob.pe/wps/wcm/connect/cortesuperiormadrediospj/s_csj_madre_de_dios_nuevo/as_inicio/as_imagen_prensa/as_noticias/csjmd_n_notaprensa_017_08022018' target='_blank' rel='noopener'>Read 2018 court announcement</a>")
  .addTo(courtMapLayer);
 }
 function focusCourt(region){
