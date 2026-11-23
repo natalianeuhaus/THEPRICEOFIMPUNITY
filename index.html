@@ -1075,6 +1075,8 @@ function scheduleIntroFlyover(){
 }
 function render(resetView=true){
  if(resetView)cancelIntroFlyover();
+ // Enter Chapter 3 at the recruitment step, including on a restored visit.
+ if(resetView&&current===2){traffickingStep=0;rememberReadingPosition()}
  document.querySelector(".map-wrap").classList.toggle("chapter-intro",current===0);
  const c=chapters[current];
  document.querySelector(".evidence-section").hidden=current===0;
@@ -1098,8 +1100,8 @@ function render(resetView=true){
  document.getElementById("prev").disabled=current===0;document.getElementById("next").disabled=current===6;
  document.getElementById("chapters").replaceChildren(...visibleChapterIds.map((id,i)=>{const b=document.createElement("button");b.textContent=String(i+1).padStart(2,"0");b.className=id===current?"active":"";b.title=chapters[id].title;b.onclick=()=>go(i);return b}));
  layer.clearLayers();evidenceLayers.clear();drawEvidenceList();createLegend();updateHighwayOverlay();updateOfficialCorridor();updateJudicialBoundary();
- // Start each chapter with Madre de Dios. The principal trafficking transfer case now stays within Madre de Dios.
- if(resetView){if(current===0)map.fitBounds([[-13.65,-72.12],[-12.43,-69.03]],{padding:[55,55],maxZoom:8,animate:false});else if(current===2)map.fitBounds([[-13.19,-70.48],[-12.50,-69.45]],{padding:[35,35],maxZoom:9,animate:false});else if(current===3)map.setView([-12.5933,-69.1891],11,{animate:false});else if(current===6)map.fitBounds([[-13.65,-72.55],[-11.93,-68.91]],{padding:[30,30],maxZoom:8,animate:false});else map.fitBounds(localBounds,{padding:[24,24],maxZoom:9,animate:false})}
+ // Start Chapter 3 with all recruitment regions visible; retain local views for other chapters.
+ if(resetView){if(current===0)map.fitBounds([[-13.65,-72.12],[-12.43,-69.03]],{padding:[55,55],maxZoom:8,animate:false});else if(current===2)map.fitBounds(L.latLngBounds(recruitmentOrigins.map(d=>d.coord)).pad(.12),{padding:[45,45],maxZoom:7,animate:false});else if(current===3)map.setView([-12.5933,-69.1891],11,{animate:false});else if(current===6)map.fitBounds([[-13.65,-72.55],[-11.93,-68.91]],{padding:[30,30],maxZoom:8,animate:false});else map.fitBounds(localBounds,{padding:[24,24],maxZoom:9,animate:false})}
  drawChapterPlaces();
  if(current!==0&&shownLayer("context"))regionSites.forEach((v,i)=>{if(chapterPlaceNames[current].some(name=>v.name.startsWith(name+" ·")))return;const col=current>=1&&[4,5].includes(i)?"#e2bb55":"#eeeeee";L.circleMarker(v.p,{radius:5,color:col,fillColor:col,fillOpacity:.9,weight:1})
  .bindPopup("<strong>"+v.name+"</strong><p>"+(i===0||i===1?"Andean geographic reference, not a case-specific recruitment site.":i===2?"Regional-capital reference, not an individual incident location.":i===3?"Transport junction, not evidence of criminal activity.":"Approximate mining study-area reference, not a verified individual mine.")+"</p>")
@@ -1134,6 +1136,9 @@ function render(resetView=true){
  if(shownLayer("convergence"))convergence.filter(n=>n.first<=current).forEach(n=>{const ring=L.circleMarker(n.coord,{radius:21,color:"#eeeeee",weight:2.5,opacity:.98,dashArray:"3,5",fill:false,fillOpacity:0,className:"documented-overlap-ring"}).bindPopup(convergencePopup(n),{maxWidth:350,maxHeight:330,autoPanPaddingTopLeft:[20,80]});registerEvidence(n.id,ring).addTo(layer)});
  caseFiles.forEach(r=>{const first=r.layer==="mining"?1:r.layer==="trafficking"?2:3;if(first>current)return;const kind=r.layer==="corruption"?"institutions":r.layer;if(!shownLayer(kind))return;caseDot(r)});drawTraffickingStageOverlay();drawCourtMap();drawConnectionOverlay();
  if(resetView&&current===0)scheduleIntroFlyover();
+ if(resetView&&current===2)setTimeout(()=>{
+  if(current===2&&traffickingStep===0)flashTraffickingMapMarkers(0);
+ },450);
 }
 // The regional vector file is built reproducibly from the 2026 public mining scar raster.
 fetch("./data/madre_de_dios_mining_scar_outlines.geojson",{cache:"no-cache"})
