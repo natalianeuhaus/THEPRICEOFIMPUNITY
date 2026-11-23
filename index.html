@@ -184,6 +184,19 @@ function focusMiningOversightInstitutions(){
  map.once("moveend",()=>{if(current===1)L.popup({maxWidth:360}).setLatLng(point).setContent(popup).openOn(map)});
  map.flyTo(point,11,{duration:.85});
 }
+function focusMiningOversightOrigin(name){
+ if(current!==1)return;
+ const points={"La Pampa":[-12.99,-69.90],"Mazuko":[-13.096,-70.367],"Huepetuhe":[-13.0509,-70.5736]};
+ const point=points[name];if(!point)return;
+ const source="https://ojo-publico.com/edicion-regional/exdirector-energia-y-minas-madre-dios-orden-captura";
+ const popup="<strong>"+name+" · reported transfer origin</strong>"
+  +"<p>Reporting on the regional mining-authority bribery investigation identified money transfers originating in mining areas including La Pampa, Mazuko and Huepetuhe.</p>"
+  +"<p>This is an approximate area reference. The report does not establish that a particular mine here received protection or that a specific transfer was a proven bribe.</p>"
+  +"<p><a href='"+source+"' target='_blank' rel='noopener'>OjoPúblico · Investigation ↗</a></p>";
+ map.closePopup();
+ map.once("moveend",()=>{if(current===1)L.popup({maxWidth:330}).setLatLng(point).setContent(popup).openOn(map)});
+ map.flyTo(point,10,{duration:.85});
+}
 function makeMiningOversightTimeline(){
  const section=document.createElement("section");section.className="oversight-timeline";
  const heading=document.createElement("h2");heading.textContent="WHEN OVERSIGHT FAILS";section.append(heading);
@@ -210,6 +223,21 @@ function makeMiningOversightTimeline(){
   const description=document.createElement("p");description.textContent=r.description;
   const detail=document.createElement("div");detail.className="oversight-detail";detail.textContent=r.detail;
   content.append(number,description,detail);
+  if(r.year==="2019"){
+   const origins=document.createElement("p");origins.className="oversight-note";
+   origins.append(document.createTextNode("Reported money-transfer origins: "));
+   ["La Pampa","Mazuko","Huepetuhe"].forEach((name,i)=>{
+    if(i)origins.append(document.createTextNode(", "));
+    const button=document.createElement("button");button.type="button";button.className="place-map-link";
+    button.textContent=name;button.title="Locate "+name+" as a reported transfer origin (approximate)";
+    button.setAttribute("aria-label","Locate "+name+" reported transfer origin on the map");
+    button.onclick=()=>focusMiningOversightOrigin(name);origins.append(button);
+   });
+   origins.append(document.createTextNode(". Reporting on the investigation identified transfers from these mining areas toward DREM officials. This does not establish which mines, if any, received favorable treatment. "));
+   const source=document.createElement("a");source.href="https://ojo-publico.com/edicion-regional/exdirector-energia-y-minas-madre-dios-orden-captura";
+   source.target="_blank";source.rel="noopener";source.textContent="OJOPÚBLICO · REPORT ↗";origins.append(source);
+   content.append(origins);
+  }
   if(r.note){const note=document.createElement("p");note.className="oversight-note";note.textContent=r.note;content.append(note)}
   item.append(stamp,content);section.append(item);
  });
