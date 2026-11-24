@@ -9,7 +9,7 @@
 
   const sheet = document.createElement('link');
   sheet.rel = 'stylesheet';
-  sheet.href = './assets/frontier-timeline.css?v=20261124e';
+  sheet.href = './assets/frontier-timeline.css?v=20261124f';
   document.head.append(sheet);
 
   const timeline = document.createElement('section');
@@ -21,8 +21,6 @@
       <div class="frontier-image-window">
         <img src="./assets/mining-frontier/2012.webp"
           alt="Illustrative regional satellite sequence of Madre de Dios in 2012, showing the mining frontier from Huepetuhe and Delta Uno to La Pampa and Puerto Maldonado">
-        <span class="frontier-puerto-label-blink" aria-hidden="true"></span>
-        <span class="frontier-puerto-marker-blink" aria-hidden="true"></span>
       </div>
       <span class="frontier-loading" aria-hidden="true">ILLUSTRATIVE SEQUENCE · SAME REGION</span>
     </div>
@@ -131,13 +129,6 @@
     const enteringFrontier = active && (resetView || !wasActive);
     timeline.hidden = !active;
     wrap.classList.toggle('frontier-active', active);
-    // Pulse Puerto Maldonado's label and town marker only on the chapter's
-    // opening satellite sequence, not during scrubbing or on other chapters.
-    timeline.classList.remove('frontier-puerto-intro');
-    if (enteringFrontier) {
-      void timeline.offsetWidth; // restart the brief blink when revisiting
-      timeline.classList.add('frontier-puerto-intro');
-    }
     // Restore Leaflet's full-height viewport before the next chapter fits
     // its map bounds. Otherwise Chapter 3 retains half the timeline height
     // as a vertical offset until another chapter is selected.
