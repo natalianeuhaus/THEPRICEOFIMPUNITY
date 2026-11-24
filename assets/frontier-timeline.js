@@ -9,7 +9,7 @@
 
   const sheet = document.createElement('link');
   sheet.rel = 'stylesheet';
-  sheet.href = './assets/frontier-timeline.css';
+  sheet.href = './assets/frontier-timeline.css?v=20261124b';
   document.head.append(sheet);
 
   const timeline = document.createElement('section');
