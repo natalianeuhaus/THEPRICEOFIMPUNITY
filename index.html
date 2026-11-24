@@ -107,6 +107,10 @@
 .political-context-report .political-report-year{font:11px/1.5 monospace;color:#8bbdf0}
 .political-context-report p{font:11px/1.75 monospace;color:#d1d1d1;margin:0}
 .political-context-report a{display:inline-block;margin-top:5px;font:10px/1.5 monospace}
+.political-removal-name{display:block;font:12px/1.6 monospace;font-weight:400;color:#eee;margin:0 0 3px}
+.political-removal-rows{border-bottom:1px solid #383838}
+.political-removal-distinction{margin-top:12px}
+
 .political-context-caveat{font:10px/1.8 monospace;color:#aaa;border-left:2px solid #8bbdf0;padding:8px 11px;margin:15px 0 0;background:#0f1418}
 @media(max-width:500px){.political-president-list li{grid-template-columns:105px minmax(0,1fr);gap:6px}.political-president-list .political-name{font-size:11px}.political-context-report{grid-template-columns:72px minmax(0,1fr);gap:9px}}
 .klitgaard-framework{margin:22px 0 26px;border-top:1px solid #ccc;border-bottom:1px solid #555;padding:20px 0 22px}.klitgaard-framework h2{font:11px/1.6 monospace;letter-spacing:.13em;margin:0 0 12px}.klitgaard-formula{text-align:center;font:400 clamp(30px,4vw,51px)/1.35 Georgia,serif;color:#f3f3f3;padding:14px 8px 8px}.klitgaard-formula-caption{text-align:center;color:#aaa;font:11px/1.7 monospace;margin:0 0 18px}.klitgaard-components{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.klitgaard-component{border:1px solid #444;padding:13px 9px;background:#101010}.klitgaard-component strong{display:block;font:23px/1.2 Georgia,serif;color:#ddd;margin:0 0 5px}.klitgaard-component span{display:block;font:10px/1.6 monospace;color:#aebdca}.klitgaard-framework .klitgaard-note{margin:15px 0 0;font:10px/1.7 monospace;color:#a4a4a4}@media(max-width:560px){.klitgaard-components{grid-template-columns:1fr}.klitgaard-component{display:flex;align-items:center;gap:14px}.klitgaard-component strong{margin:0;min-width:20px}}
@@ -1280,6 +1284,36 @@ function makePoliticalContextTimeline(){
  addLink("Peruvian Congress","https://www3.congreso.gob.pe/biblioteca/presidentes/2000-2021/");chronology.append(" · ");
  addLink("2022 transition","https://www.gob.pe/institucion/rree/noticias/679338-comunicado-oficial");chronology.append(" · ");
  addLink("2025 transition","https://www.gob.pe/institucion/presidencia/noticias/1261758-jose-jeri-ore-jura-como-presidente-de-la-republica-del-peru-por-sucesion-constitucional");
+ // The six-presidents count is confined to the investigation's 2019–2025
+ // window. Congressional vacancy removals are a narrower category.
+ const removalHeading=document.createElement("h3");removalHeading.textContent="CONGRESSIONAL REMOVALS SINCE FUJIMORI · 2000–2025";
+ const removalIntro=document.createElement("p");removalIntro.className="political-context-small";
+ removalIntro.textContent="Four presidents were removed after Congress invoked permanent moral incapacity under Article 113(2) of Peru's Constitution. This differs from Congress accepting a resignation, and it does not itself establish a criminal conviction.";
+ const removalRows=document.createElement("div");removalRows.className="political-context-reports political-removal-rows";
+ const vacancies=[
+  ["2000","Alberto Fujimori","Congress declared permanent moral incapacity and a vacancy of the presidency after declining his resignation.","https://www2.congreso.gob.pe/sicr/cendocbib/con5_uibd.nsf/00CDD442ACC30AB2052582BA007875FE/%24FILE/resolucionlegislativa-incapacidadmoral-2000-af.pdf"],
+  ["2020","Martín Vizcarra","Congress declared the presidency vacant on 9 November.","https://comunicaciones.congreso.gob.pe/noticias/congreso-de-la-republica-aprueba-vacancia-de-martin-vizcarra-por-105-votos-a-favor/"],
+  ["2022","Pedro Castillo","Congress declared a vacancy on 7 December following his attempt to dissolve Congress.","https://comunicaciones.congreso.gob.pe/noticias/congreso-de-la-republica-declara-vacancia-de-pedro-castillo-y-sucesion-presidencial/"],
+  ["2025","Dina Boluarte","Congress declared a vacancy on 10 October.","https://comunicaciones.congreso.gob.pe/noticias/congreso-de-la-republica-aprueba-vacancia-de-dina-boluarte-con-122-votos-a-favor/"]
+ ];
+ vacancies.forEach(([year,name,description,url])=>{
+  const row=document.createElement("div");row.className="political-context-report";
+  const date=document.createElement("div");date.className="political-report-year";date.textContent=year;
+  const details=document.createElement("div");
+  const label=document.createElement("strong");label.className="political-removal-name";label.textContent=name;
+  const summary=document.createElement("p");summary.textContent=description;
+  const source=document.createElement("a");source.href=url;source.target="_blank";source.rel="noopener";source.textContent="CONGRESSIONAL RECORD ↗";
+  details.append(label,summary,source);row.append(date,details);removalRows.append(row);
+ });
+ const distinction=document.createElement("p");distinction.className="political-context-small political-removal-distinction";
+ distinction.append("Different exits: ");
+ const distinctionLink=(text,url)=>{const link=document.createElement("a");link.textContent=text;link.href=url;link.target="_blank";link.rel="noopener";distinction.append(link)};
+ distinctionLink("Kuczynski resigned in 2018","https://comunicaciones.congreso.gob.pe/noticias/congreso-acepto-renuncia-de-kuczynski-a-la-presidencia/");
+ distinction.append("; ");
+ distinctionLink("Merino resigned in 2020","https://comunicaciones.congreso.gob.pe/noticias/pleno-acepta-renuncia-de-merino-de-lama-a-la-presidencia-de-la-republica/");
+ distinction.append("; and ");
+ distinctionLink("Jerí was censured in February 2026","https://comunicaciones.congreso.gob.pe/noticias/congreso-aprueba-mociones-de-censura-contra-el-presidente-de-la-republica-jose-jeri-ore/");
+ distinction.append(", after this investigation's 2019–2025 window.");
  const heading=document.createElement("h3");heading.textContent="WHAT THE ANTI-TRAFFICKING REPORTS DOCUMENT";
  const findings=[
  ["2020–2021","The U.S. State Department reported disrupted coordination among ministries and the national anti-trafficking commission. COVID-19 restrictions added to that disruption.","https://2021-2025.state.gov/reports/2021-trafficking-in-persons-report/peru__trashed/","2021 TRAFFICKING REPORT"],
@@ -1289,7 +1323,7 @@ function makePoliticalContextTimeline(){
  const reports=document.createElement("div");reports.className="political-context-reports";
  findings.forEach(([year,summary,url,label])=>{const row=document.createElement("div");row.className="political-context-report";const y=document.createElement("div");y.className="political-report-year";y.textContent=year;const text=document.createElement("div");const p=document.createElement("p");p.textContent=summary;const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener";a.textContent=label+" ↗";text.append(p,a);row.append(y,text);reports.append(row)});
  const note=document.createElement("p");note.className="political-context-caveat";note.textContent="These are national findings, not evidence that a change of president caused a particular trafficking case, inspection failure, or court outcome in Madre de Dios. They show additional strain on institutions already responsible for enforcement.";
- section.append(title,intro,stat,timeline,chronology,heading,reports,note);return section;
+ section.append(title,intro,stat,timeline,chronology,removalHeading,removalIntro,removalRows,distinction,heading,reports,note);return section;
 }
 function makeKlitgaardFramework(){
  const section=document.createElement("section");section.className="klitgaard-framework";
