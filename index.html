@@ -89,7 +89,25 @@
 @media(prefers-reduced-motion:reduce){.map-wrap.chapter-five path.documented-overlap-outer-extra,.map-wrap.chapter-five .leaflet-interactive.documented-overlap-ring{animation:none}}
 @keyframes overlap-ring-pulse{0%,100%{stroke-opacity:.58;stroke-width:2.5px}50%{stroke-opacity:1;stroke-width:4px}}
 @keyframes overlap-ring-dashes{to{stroke-dashoffset:-96}}
-@media(prefers-reduced-motion:reduce){.leaflet-interactive.documented-overlap-ring{animation:none;stroke-opacity:.95;stroke-width:3px}}.leaflet-interactive:not(.historical-ring-clickthrough).marker-flash{animation:markerBlink .85s ease-in-out 2;stroke:#fff;stroke-width:5px}.political-context{border-top:1px solid #bbb;border-bottom:1px solid #555;margin:26px 0 23px;padding:19px 0 23px}
+@media(prefers-reduced-motion:reduce){.leaflet-interactive.documented-overlap-ring{animation:none;stroke-opacity:.95;stroke-width:3px}}
+/* Chapter 6: map symbols pulse for five seconds on entry, then remain still.
+   Keep the connection lines and the documentary overlap rings static after. */
+.map-wrap.chapter-six .leaflet-interactive.documented-overlap-ring{animation:none;stroke-opacity:.98;stroke-width:2.5px}
+.map-wrap.chapter-six .leaflet-overlay-pane path.connection-flow{animation:none}
+.map-wrap.chapter-six.chapter-six-icons-animate .leaflet-interactive.chapter-six-icon,
+.map-wrap.chapter-six.chapter-six-icons-animate .chapter-six-icon svg{
+ transform-box:fill-box;transform-origin:center;
+ animation:chapter-six-icon-intro-pulse 1s ease-in-out 5;
+}
+@keyframes chapter-six-icon-intro-pulse{
+ 0%,100%{transform:scale(1);opacity:1;filter:none}
+ 50%{transform:scale(1.23);opacity:.67;filter:drop-shadow(0 0 6px #f8e5ac)}
+}
+@media(prefers-reduced-motion:reduce){
+ .map-wrap.chapter-six.chapter-six-icons-animate .leaflet-interactive.chapter-six-icon,
+ .map-wrap.chapter-six.chapter-six-icons-animate .chapter-six-icon svg{animation:none}
+}
+.leaflet-interactive:not(.historical-ring-clickthrough).marker-flash{animation:markerBlink .85s ease-in-out 2;stroke:#fff;stroke-width:5px}.political-context{border-top:1px solid #bbb;border-bottom:1px solid #555;margin:26px 0 23px;padding:19px 0 23px}
 .political-context h2{font:400 11px/1.6 monospace;letter-spacing:.13em;color:#eee;margin:0 0 13px}
 .political-context-intro{font:11px/1.8 monospace;color:#bbb;margin:0 0 13px}
 .political-context-stat{display:flex;align-items:center;gap:14px;margin:5px 0 15px}
@@ -1353,13 +1371,17 @@ function chapter5Paragraph(text){
  }
  p.append(document.createTextNode(text.slice(last)));return p;
 }
+let chapterSixIconTimeout=null;
 function render(resetView=true){
  if(window.frontierTimeline)window.frontierTimeline.sync(current,resetView);
  if(resetView)cancelIntroFlyover();
  // Keep Chapter 3's recruitment regions hidden until the reader selects that step.
  if(resetView&&current===2){traffickingStep=0;chapter3RecruitmentVisible=false;chapter3HistoricalHidden=false;filters.historical=true;rememberReadingPosition()}
- document.querySelector(".map-wrap").classList.toggle("chapter-intro",current===0);
- document.querySelector(".map-wrap").classList.toggle("chapter-five",current===4);
+ const mapWrap=document.querySelector(".map-wrap");
+ mapWrap.classList.toggle("chapter-intro",current===0);
+ mapWrap.classList.toggle("chapter-five",current===4);
+ mapWrap.classList.toggle("chapter-six",current===6);
+ if(current!==6){clearTimeout(chapterSixIconTimeout);chapterSixIconTimeout=null;mapWrap.classList.remove("chapter-six-icons-animate")}
  const c=chapters[current];
  document.querySelector(".evidence-section").hidden=current===0;
  document.getElementById("number").textContent="CHAPTER "+String(visibleChapterIds.indexOf(current)+1).padStart(2,"0")+" / 06";
@@ -1428,6 +1450,28 @@ function render(resetView=true){
  if(current>=2&&shownLayer("historical")){const locations=evidence.filter(e=>e.id.startsWith("historical-"));locations.forEach(e=>{const shape=L.circleMarker(e.coord,{radius:11,color:"#d8a4ff",weight:3,opacity:1,fill:false,pane:"historicalMarkers",className:"historical-ring-clickthrough"}).bindPopup("<strong>"+e.title+"</strong><p>"+e.summary+"</p><a href=\""+e.url+"\" target=\"_blank\" rel=\"noopener\">Read original study</a>");registerEvidence(e.id,shape).addTo(layer)})}
  if(shownLayer("convergence"))convergence.filter(n=>n.first<=current).forEach(n=>{if(current===4)L.circleMarker(n.coord,{radius:47,color:"#f2f2f2",weight:2,opacity:.92,dashArray:"5,12",fill:false,fillOpacity:0,interactive:false,className:"documented-overlap-outer-extra"}).addTo(layer);const ring=L.circleMarker(n.coord,{radius:21,color:"#eeeeee",weight:2.5,opacity:.98,dashArray:"3,5",fill:false,fillOpacity:0,className:"documented-overlap-ring"}).bindPopup(convergencePopup(n),{maxWidth:350,maxHeight:330,autoPanPaddingTopLeft:[20,80]});registerEvidence(n.id,ring).addTo(layer)});
  caseFiles.forEach(r=>{const first=r.layer==="mining"?1:r.layer==="trafficking"?2:3;if(first>current)return;const kind=r.layer==="corruption"?"institutions":r.layer;if(!shownLayer(kind))return;caseDot(r)});drawTraffickingStageOverlay();drawCourtMap();drawInstitutionJurisdictionLinks();drawConnectionOverlay();
+ // Chapter 6: pulse every point/symbol together for five seconds, then leave
+ // every icon static. Lines and mining contours are not point icons.
+ if(current===6){
+  [introTownLayer,layer,traffickingStageLayer,courtMapLayer,connectionAnimationLayer].forEach(group=>group.eachLayer(item=>{
+   if(item instanceof L.CircleMarker||item instanceof L.Marker){
+    const element=item.getElement();
+    if(element)element.classList.add("chapter-six-icon");
+   }
+  }));
+  if(resetView){
+   clearTimeout(chapterSixIconTimeout);
+   mapWrap.classList.remove("chapter-six-icons-animate");
+   if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+    void mapWrap.offsetWidth;
+    mapWrap.classList.add("chapter-six-icons-animate");
+    chapterSixIconTimeout=setTimeout(()=>{
+     mapWrap.classList.remove("chapter-six-icons-animate");
+     chapterSixIconTimeout=null;
+    },5000);
+   }
+  }
+ }
  if(resetView&&current===0)scheduleIntroFlyover();
  if(resetView&&current===2)setTimeout(()=>{
   if(current===2&&traffickingStep===0)flashTraffickingMapMarkers(3);
