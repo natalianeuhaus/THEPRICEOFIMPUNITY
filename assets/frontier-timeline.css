@@ -5,7 +5,7 @@
 .frontier-timelapse { position: absolute; inset: 0; z-index: 850; pointer-events: none; }
 .frontier-stage {
   position: absolute; inset: 0 0 var(--frontier-panel-height) 0;
-  display: flex; align-items: center; justify-content: center;
+  display: flex; align-items: flex-start; justify-content: center;
   overflow: hidden; background: #080c09; pointer-events: auto;
   opacity: 1; transition: opacity 1.3s ease;
 }
