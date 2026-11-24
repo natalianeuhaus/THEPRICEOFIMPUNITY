@@ -66,7 +66,7 @@
 @keyframes highway-geography-reveal{from{opacity:0}to{opacity:1}}
 .map-wrap.chapter-intro path.reveal-highway{animation:highway-geography-reveal 2.8s ease-out 1.4s both}
 .leaflet-div-icon.highway-route-label{background:transparent;border:0;box-shadow:none;pointer-events:none}
-.highway-route-label span{display:inline-block;white-space:nowrap;padding:4px 7px;background:#080808e6;border:1px solid #a99872;color:#f7e7be;font:10px/1.3 monospace;letter-spacing:.035em;transform:rotate(-14deg);transform-origin:center;box-shadow:0 2px 7px #0009}
+.highway-route-label span{display:inline-block;white-space:nowrap;padding:4px 7px;background:#080808e6;border:1px solid #a99872;color:#f7e7be;font:10px/1.3 monospace;letter-spacing:.035em;transform:translateY(52px);transform-origin:center;box-shadow:0 2px 7px #0009}
 @media(prefers-reduced-motion:reduce){.map-wrap.chapter-intro path.reveal-highway{animation:none!important}}
 /* During the introductory flyover, hide only scalable dots. Keep the separately paneled Madre de Dios boundary and Interoceanic Highway visible. */
 .map-wrap.chapter-intro.intro-flying .leaflet-overlay-pane svg{visibility:hidden!important}
@@ -539,7 +539,7 @@ function updateHighwayOverlay(){
  const base={pane:"interoceanica-underlay",interactive:false,className:"reveal-highway",style:{color:"#101010",weight:5.5,opacity:.85,lineCap:"round",lineJoin:"round"}};
  L.geoJSON(highwayData,base).addTo(highwayLayer);
  L.geoJSON(highwayData,{pane:"interoceanica-underlay",className:"reveal-highway",style:{color:"#f7e7be",weight:2.8,opacity:.95,lineCap:"round",lineJoin:"round"},onEachFeature:(_f,shape)=>shape.bindPopup(roadPopup,{maxWidth:320})}).addTo(highwayLayer);
- L.marker([-12.77475,-69.58682],{pane:"highway-label-pane",interactive:false,keyboard:false,icon:L.divIcon({className:"highway-route-label",html:'<span role="img" aria-label="Southern Interoceanic Highway">INTEROCEÁNICA SUR · PE-30C</span>',iconSize:[200,23],iconAnchor:[100,12]})}).addTo(highwayLayer);
+ L.marker([-12.71962,-69.48874],{pane:"highway-label-pane",interactive:false,keyboard:false,icon:L.divIcon({className:"highway-route-label",html:'<span role="img" aria-label="Southern Interoceanic Highway">INTEROCEÁNICA SUR · PE-30C</span>',iconSize:[200,23],iconAnchor:[100,12]})}).addTo(highwayLayer);
  highwayDrawn=true;
 }
 fetch("./data/interoceanica_pe30c.geojson",{cache:"no-cache"})
