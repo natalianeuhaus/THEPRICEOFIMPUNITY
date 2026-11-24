@@ -1502,7 +1502,7 @@ function render(resetView=true){
    if(!element)return;
    const pos=item.getLatLng();
    const seed=Math.abs(Math.round(pos.lat*10000)*31+Math.round(pos.lng*10000)*17+iconIndex*53);
-   const movement=motions[(seed+iconIndex)%motions.length];
+   const movement=motions[iconIndex%motions.length];
    const intensity=seed%7;
    element.classList.add("chapter-six-icon");
    element.style.setProperty("--ch6-motion",movement);
