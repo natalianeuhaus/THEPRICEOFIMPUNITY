@@ -1291,6 +1291,7 @@ function chapter5Paragraph(text){
  p.append(document.createTextNode(text.slice(last)));return p;
 }
 function render(resetView=true){
+ if(window.frontierTimeline)window.frontierTimeline.sync(current,resetView);
  if(resetView)cancelIntroFlyover();
  // Enter Chapter 3 at the recruitment step, including on a restored visit.
  if(resetView&&current===2){traffickingStep=0;chapter3HistoricalHidden=false;filters.historical=true;rememberReadingPosition()}
@@ -1375,5 +1376,10 @@ fetch("./data/madre_de_dios_mining_scar_outlines.geojson",{cache:"no-cache"})
  .then(j=>{if(!Array.isArray(j.features)||!j.features.length)throw Error("No outlines");regionalMiningData=j;
    document.getElementById("mining-data-status").textContent=j.features.length+" regional model-derived contours · Oct 2026 source snapshot · outlines only";render(false)})
  .catch(()=>{document.getElementById("mining-data-status").textContent="Regional contours pending; displaying smaller La Pampa preview.";});
+// Chapter 2: the regional year scrubber overlays this same interactive map.
+// The other five chapters continue using the map without a timeline.
+const frontierTimelineScript=document.createElement("script");
+frontierTimelineScript.src="./assets/frontier-timeline.js";
+document.body.append(frontierTimelineScript);
 function go(i){stopConnectionAnimation();current=visibleChapterIds[Math.max(0,Math.min(visibleChapterIds.length-1,i))];activeEvidence=null;openEvidenceGroups.clear();openEvidenceGroups.add({0:"geography",1:"mining",2:"trafficking",3:"institutions",4:"connections",6:"connections"}[current]);if(current===7)connectionStage=0;rememberReadingPosition();setLegendOpen(false);render();document.querySelector("article").scrollTop=0;if(window.matchMedia("(max-width:800px)").matches)document.getElementById("chapters").scrollIntoView({block:"start",behavior:"smooth"});if(current===7)startConnectionAnimation()};document.getElementById("prev").onclick=()=>go(visibleChapterIds.indexOf(current)-1);document.getElementById("next").onclick=()=>go(visibleChapterIds.indexOf(current)+1);openEvidenceGroups.clear();openEvidenceGroups.add({0:"geography",1:"mining",2:"trafficking",3:"institutions",4:"connections",6:"connections"}[current]);render();
 </script></body></html>
