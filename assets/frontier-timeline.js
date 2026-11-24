@@ -126,6 +126,7 @@
   function sync(chapter, resetView = false) {
     const active = chapter === 1;
     const wasActive = !timeline.hidden;
+    const enteringFrontier = active && (resetView || !wasActive);
     timeline.hidden = !active;
     wrap.classList.toggle('frontier-active', active);
     if (!active) {
@@ -141,7 +142,12 @@
         play();
       }
     }
-    requestAnimationFrame(() => map.invalidateSize({pan: false}));
+    requestAnimationFrame(() => {
+      map.invalidateSize({pan: false});
+      // Chapter 2's shorter live-map viewport needs a little more room below
+      // the southern mining sites. Move the map image up without changing zoom.
+      if (enteringFrontier && current === 1) map.panBy([0, 48], {animate: false});
+    });
   }
   scrubber.addEventListener('input', () => {
     pause();
