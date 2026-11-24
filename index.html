@@ -1093,6 +1093,19 @@ function makeSourceGuide(){
 }
 document.getElementById("sources").after(makeSourceGuide());
 const sourceNav=document.createElement("a");sourceNav.href="#sources-section";sourceNav.textContent="SOURCES";document.querySelector('nav a[href="#about"]').before(sourceNav);
+sourceNav.addEventListener("click",event=>{
+ event.preventDefault();
+ const target=document.getElementById("sources-section");
+ const article=target?.closest("article");
+ if(!target||!article)return;
+ if(window.matchMedia("(max-width:800px)").matches){
+  target.scrollIntoView({behavior:"smooth",block:"start"});
+ }else{
+  const top=article.scrollTop+target.getBoundingClientRect().top-article.getBoundingClientRect().top-20;
+  article.scrollTo({top:Math.max(0,top),behavior:"smooth"});
+ }
+ history.replaceState(null,"","#sources-section");
+});
 const chapter2PlaceIds={"La Pampa":"regional-lapampa","Huepetuhe":"regional-huepetuhe","Delta Uno":"regional-delta","Delta":"regional-delta","Pariamanú River":"regional-pariamanu"};
 const chapter2PlacePattern=/\b(Madre de Dios|Mining Corridor|Peruvian Amazon|Pariamanú River|Delta Uno|La Pampa|Huepetuhe|Delta)\b/g;
 function focusChapter2Place(name){
