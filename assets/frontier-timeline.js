@@ -129,6 +129,10 @@
     const enteringFrontier = active && (resetView || !wasActive);
     timeline.hidden = !active;
     wrap.classList.toggle('frontier-active', active);
+    // Restore Leaflet's full-height viewport before the next chapter fits
+    // its map bounds. Otherwise Chapter 3 retains half the timeline height
+    // as a vertical offset until another chapter is selected.
+    if (!active && wasActive) map.invalidateSize({pan: false});
     if (!active) {
       pause();
       cancelTimers();
