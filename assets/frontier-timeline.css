@@ -19,6 +19,9 @@
 .map-wrap.frontier-active:not(.frontier-map-ready) .right-legend {
   opacity: 0; pointer-events: none;
 }
+.map-wrap.frontier-active:not(.frontier-map-ready) .leaflet-control-container {
+  visibility: hidden;
+}
 .map-wrap.frontier-active.frontier-map-ready .right-legend { transition: opacity .45s ease .4s; }
 .frontier-controls {
   position: absolute; bottom: 0; left: 0; right: 0;

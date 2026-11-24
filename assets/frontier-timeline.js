@@ -46,12 +46,17 @@
   let advanceTimer = null;
   let revealTimer = null;
   let frameEpoch = 0;
+  let playEpoch = 0;
 
-  // All frames are small and local. Preloading makes back-and-forth dragging smooth.
+  // Retain the preload images until ready; this also avoids the year label
+  // advancing before a new image has finished downloading on slow connections.
+  const frameCache = new Map();
   for (let y = firstYear; y <= lastYear; y++) {
     const preload = new Image();
     preload.src = `./assets/mining-frontier/${y}.webp`;
+    frameCache.set(y, preload);
   }
+  const framesReady = Promise.all([...frameCache.values()].map(img => img.decode().catch(() => {})));
 
   function cancelTimers() {
     clearTimeout(advanceTimer);
@@ -64,6 +69,7 @@
     playButton.setAttribute('aria-label', playing ? 'Pause the yearly sequence' : 'Play the yearly sequence');
   }
   function pause() {
+    playEpoch++;
     playing = false;
     clearTimeout(advanceTimer);
     advanceTimer = null;
@@ -107,7 +113,8 @@
     if (year === lastYear) showYear(firstYear);
     playing = true;
     updateButton();
-    advance();
+    const epoch = ++playEpoch;
+    framesReady.then(() => { if (playing && epoch === playEpoch) advance(); });
   }
   function revealMapImmediately() {
     if (timeline.hidden || current !== 1) return;
