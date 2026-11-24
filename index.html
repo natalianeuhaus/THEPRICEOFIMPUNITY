@@ -1379,7 +1379,7 @@ fetch("./data/madre_de_dios_mining_scar_outlines.geojson",{cache:"no-cache"})
 // Chapter 2: the regional year scrubber overlays this same interactive map.
 // The other five chapters continue using the map without a timeline.
 const frontierTimelineScript=document.createElement("script");
-frontierTimelineScript.src="./assets/frontier-timeline.js?v=20261124b";
+frontierTimelineScript.src="./assets/frontier-timeline.js?v=20261124c";
 document.body.append(frontierTimelineScript);
 function go(i){stopConnectionAnimation();current=visibleChapterIds[Math.max(0,Math.min(visibleChapterIds.length-1,i))];activeEvidence=null;openEvidenceGroups.clear();openEvidenceGroups.add({0:"geography",1:"mining",2:"trafficking",3:"institutions",4:"connections",6:"connections"}[current]);if(current===7)connectionStage=0;rememberReadingPosition();setLegendOpen(false);render();document.querySelector("article").scrollTop=0;if(window.matchMedia("(max-width:800px)").matches)document.getElementById("chapters").scrollIntoView({block:"start",behavior:"smooth"});if(current===7)startConnectionAnimation()};document.getElementById("prev").onclick=()=>go(visibleChapterIds.indexOf(current)-1);document.getElementById("next").onclick=()=>go(visibleChapterIds.indexOf(current)+1);openEvidenceGroups.clear();openEvidenceGroups.add({0:"geography",1:"mining",2:"trafficking",3:"institutions",4:"connections",6:"connections"}[current]);render();
 </script></body></html>

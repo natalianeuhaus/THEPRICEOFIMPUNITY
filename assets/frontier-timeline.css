@@ -9,7 +9,14 @@
   overflow: hidden; background: #080c09; pointer-events: auto;
   opacity: 1; transition: opacity 1.3s ease;
 }
-.frontier-stage img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.frontier-image-window {
+  width: 100%; aspect-ratio: 780 / 433; max-height: 100%;
+  position: relative; overflow: hidden;
+}
+.frontier-stage img {
+  display: block; position: absolute; left: 0; top: -13.86%;
+  width: 100%; height: auto;
+}
 .frontier-stage .frontier-loading {
   position: absolute; bottom: 15px; right: 16px;
   font: 9px/1.5 monospace; letter-spacing: .07em;

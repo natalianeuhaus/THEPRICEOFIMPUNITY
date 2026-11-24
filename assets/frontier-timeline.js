@@ -9,7 +9,7 @@
 
   const sheet = document.createElement('link');
   sheet.rel = 'stylesheet';
-  sheet.href = './assets/frontier-timeline.css?v=20261124b';
+  sheet.href = './assets/frontier-timeline.css?v=20261124c';
   document.head.append(sheet);
 
   const timeline = document.createElement('section');
@@ -18,8 +18,10 @@
   timeline.setAttribute('aria-label', 'The mining frontier, 2012 to 2026');
   timeline.innerHTML = `
     <div class="frontier-stage">
-      <img src="./assets/mining-frontier/2012.webp"
-        alt="Illustrative regional satellite sequence of Madre de Dios in 2012, showing the mining frontier from Huepetuhe and Delta Uno to La Pampa and Puerto Maldonado">
+      <div class="frontier-image-window">
+        <img src="./assets/mining-frontier/2012.webp"
+          alt="Illustrative regional satellite sequence of Madre de Dios in 2012, showing the mining frontier from Huepetuhe and Delta Uno to La Pampa and Puerto Maldonado">
+      </div>
       <span class="frontier-loading" aria-hidden="true">ILLUSTRATIVE SEQUENCE · SAME REGION</span>
     </div>
     <div class="frontier-controls">
