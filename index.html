@@ -63,6 +63,8 @@
 /* Chapter 1: travel into Madre de Dios while the mapped Interoceanic Highway fades in. */
 @keyframes highway-geography-reveal{from{opacity:0}to{opacity:1}}
 .map-wrap.chapter-intro path.reveal-highway{animation:highway-geography-reveal 2.8s ease-out 1.4s both}
+.leaflet-div-icon.highway-route-label{background:transparent;border:0;box-shadow:none;pointer-events:none}
+.highway-route-label span{display:inline-block;white-space:nowrap;padding:4px 7px;background:#080808e6;border:1px solid #a99872;color:#f7e7be;font:10px/1.3 monospace;letter-spacing:.035em;transform:rotate(-14deg);transform-origin:center;box-shadow:0 2px 7px #0009}
 @media(prefers-reduced-motion:reduce){.map-wrap.chapter-intro path.reveal-highway{animation:none!important}}
 /* During the introductory flyover, hide only scalable dots. Keep the separately paneled Madre de Dios boundary and Interoceanic Highway visible. */
 .map-wrap.chapter-intro.intro-flying .leaflet-overlay-pane svg{visibility:hidden!important}
@@ -472,6 +474,7 @@ evidence.push(...miningRegions);
 caseFiles.forEach(r=>evidence.push({id:"case-"+r.id,first:r.layer==="mining"?1:r.layer==="trafficking"?2:3,type:(r.layer==="mining"?"MINING":r.layer==="trafficking"?"TRAFFICKING":"INSTITUTIONAL")+" · "+r.year,title:r.title,summary:r.status+". "+r.description,coord:[r.lat,r.lng],url:r.url,caseLayer:r.layer}));
 const filters={mining:true,highway:true,corridor:true,judicial:true,origins:true,historical:true,trafficking:true,institutions:true,convergence:true,context:true};
 let chapter3HistoricalHidden=false;
+let chapter3RecruitmentVisible=false;
 const courtDistrictSource="https://www.pj.gob.pe/wps/wcm/connect/CorteSuperiorMadreDiosPJ/s_csj_madre_de_dios_nuevo/as_corte_superior_madre_de_dios/as_conocenos/as_historia/";
 const regionalBoundarySource="https://github.com/nfg2kr-source/inei-explorador/blob/main/data/geo/peru_adm1_geoboundaries_simplified.geojson";
 map.createPane("madre-de-dios-outline-pane");
@@ -522,6 +525,8 @@ loadJudicialBoundary();
 const highwaySource="https://sisfor.osinfor.gob.pe/osinfor/rest/services/SISFOR_v5/PUBLICABLE_CARTOBASE/MapServer/1";
 map.createPane("interoceanica-underlay");
 map.getPane("interoceanica-underlay").style.zIndex="395";
+map.createPane("highway-label-pane");
+map.getPane("highway-label-pane").style.zIndex="595";
 const highwayLayer=L.layerGroup().addTo(map);
 let highwayData=null,highwayDrawn=false;
 function updateHighwayOverlay(){
@@ -532,6 +537,7 @@ function updateHighwayOverlay(){
  const base={pane:"interoceanica-underlay",interactive:false,className:"reveal-highway",style:{color:"#101010",weight:5.5,opacity:.85,lineCap:"round",lineJoin:"round"}};
  L.geoJSON(highwayData,base).addTo(highwayLayer);
  L.geoJSON(highwayData,{pane:"interoceanica-underlay",className:"reveal-highway",style:{color:"#f7e7be",weight:2.8,opacity:.95,lineCap:"round",lineJoin:"round"},onEachFeature:(_f,shape)=>shape.bindPopup(roadPopup,{maxWidth:320})}).addTo(highwayLayer);
+ L.marker([-12.77475,-69.58682],{pane:"highway-label-pane",interactive:false,keyboard:false,icon:L.divIcon({className:"highway-route-label",html:'<span role="img" aria-label="Southern Interoceanic Highway">INTEROCEÁNICA SUR · PE-30C</span>',iconSize:[200,23],iconAnchor:[100,12]})}).addTo(highwayLayer);
  highwayDrawn=true;
 }
 fetch("./data/interoceanica_pe30c.geojson",{cache:"no-cache"})
@@ -653,7 +659,7 @@ function createLegend(){
   {key:"convergence",label:"White dashed rings · documented locality overlaps",symbol:"convergence"},
   {key:"context",label:"Grey dots / lines · geographic context",symbol:"context"}
  ];
- opts.filter(o=>current===7||current>=(chapterLayerThreshold[o.key]??0)).forEach(o=>{
+ opts.filter(o=>(current===7||current>=(chapterLayerThreshold[o.key]??0))&&!(current===2&&o.key==="origins"&&!chapter3RecruitmentVisible)).forEach(o=>{
   const el=document.createElement("label");el.className="legend-check";
   const check=document.createElement("input");check.type="checkbox";check.checked=o.key==="historical"&&current===2?filters.historical&&!chapter3HistoricalHidden:filters[o.key];check.setAttribute("aria-label","Toggle "+o.label);
   check.onchange=()=>{if(o.key==="historical"&&current===2)chapter3HistoricalHidden=!check.checked;filters[o.key]=check.checked;if(activeEvidence){const e=evidence.find(x=>x.id===activeEvidence);if(e&&!legendVisible(e))activeEvidence=null}render(false)};
@@ -728,7 +734,7 @@ const indexedEvidence=()=>evidence.filter(e=>!Object.prototype.hasOwnProperty.ca
 const openEvidenceGroups=new Set(["geography"]);
 function categoryForEvidence(e){return evidenceCategories.find(g=>g.test(e))?.id||"other"}
 function drawEvidenceList(){
- const list=document.getElementById("evidence-list"),shown=indexedEvidence().filter(x=>x.first<=current);
+ const list=document.getElementById("evidence-list"),shown=indexedEvidence().filter(x=>x.first<=current&&!(current===2&&(x.id==="puerto-la-pampa"||(x.evidenceKind==="origin"&&!chapter3RecruitmentVisible))));
  document.getElementById("evidence-count").textContent=shown.length+" MAPPED RECORDS";
  if(activeEvidence){const selected=shown.find(x=>x.id===activeEvidence);if(selected)openEvidenceGroups.add(categoryForEvidence(selected))}
  const groups=evidenceCategories.map(cat=>({...cat,items:shown.filter(cat.test)})).filter(g=>g.items.length);
@@ -776,7 +782,7 @@ function drawTraffickingStages(){
  const host=document.getElementById("body");if(current!==2)return;
  const wrap=document.createElement("section");wrap.className="trafficking-stages";
  const title=document.createElement("h2");title.textContent="FOLLOW THE EVIDENCE";wrap.append(title);const note=document.createElement("p");note.className="stage-map-key";note.textContent="Select a marker to see the case or report behind it. ■ Pink squares show recruitment regions (2020–2021); ◯ purple hollow circles show historical trafficking counts (2015–2017); ▲ pink triangles identify documented exploitation and trafficking cases. The first two datasets cover trafficking for different purposes, including forms other than sexual exploitation; they are context, not sex-trafficking totals. Locations are approximate, and no survivor addresses appear on the map.";wrap.append(note);
- traffickingSteps.forEach((item,i)=>{const b=document.createElement("button");b.type="button";b.className="trafficking-step"+(i===traffickingStep?" active":"");b.setAttribute("aria-pressed",String(i===traffickingStep));b.innerHTML="<span>"+String(i+1).padStart(2,"0")+"</span>";b.append(document.createTextNode(item.title));b.onclick=()=>{traffickingStep=i;rememberReadingPosition();if(i===1){filters.historical=true;chapter3HistoricalHidden=false;render(false)}else drawTraffickingStages();focusTraffickingStage(i)};if(i===2){const divider=document.createElement("div");divider.className="trafficking-step-divider";divider.setAttribute("aria-hidden","true");wrap.append(divider)}wrap.append(b)});
+ traffickingSteps.forEach((item,i)=>{const b=document.createElement("button");b.type="button";const active=i===traffickingStep&&(i!==0||chapter3RecruitmentVisible);b.className="trafficking-step"+(active?" active":"");b.setAttribute("aria-pressed",String(active));b.innerHTML="<span>"+String(i+1).padStart(2,"0")+"</span>";b.append(document.createTextNode(item.title));b.onclick=()=>{traffickingStep=i;chapter3RecruitmentVisible=i===0;if(i===0)filters.origins=true;if(i!==0&&activeEvidence?.startsWith("origin-"))activeEvidence=null;rememberReadingPosition();if(i===1){filters.historical=true;chapter3HistoricalHidden=false;render(false)}else drawTraffickingStages();focusTraffickingStage(i);if(i!==1){drawEvidenceList();createLegend()}};if(i===2){const divider=document.createElement("div");divider.className="trafficking-step-divider";divider.setAttribute("aria-hidden","true");wrap.append(divider)}wrap.append(b)});
  const d=document.createElement("div");d.className="trafficking-stage-detail";traffickingSteps[traffickingStep].text.split("\n\n").forEach((paragraph,i)=>{const p=document.createElement("p");if(traffickingStep===2&&i===2){const lead="The map establishes a documented geographic connection between mining activity and sex trafficking.";const strong=document.createElement("strong");strong.textContent=lead;p.append(strong,document.createTextNode(paragraph.slice(lead.length)))}else p.textContent=paragraph;d.append(p)});const sources=document.createElement("div");sources.className="stage-source-list";const sourceList=traffickingStep===2?[["RECRUITMENT DATA",traffickingSteps[0].source],["HISTORICAL RECORDS",traffickingSteps[1].source],["LA PAMPA CASE",traffickingSteps[2].source],["DELTA UNO CASE","https://www.pj.gob.pe/wps/wcm/connect/cortesuperiormadrediospj/s_csj_madre_de_dios_nuevo/as_inicio/as_imagen_prensa/as_noticias/csjmd_n_notaprensa_017_08022018"]]:[["READ SOURCE",traffickingSteps[traffickingStep].source]];sourceList.forEach(([label,url])=>{const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener";a.textContent=label+" ↗";sources.append(a)});d.append(sources);wrap.append(d);
  const old=host.querySelector(".trafficking-stages");if(old)old.replaceWith(wrap);else {const guide=host.querySelector(".guide-jump");if(guide)host.insertBefore(wrap,guide);else host.append(wrap);}
 
@@ -874,6 +880,7 @@ let connectionStage=0,connectionPlaying=false,connectionTimer=null;
 function shownLayer(key){
  if(key==="corridor")return false;
  if(key==="historical"&&current===2&&chapter3HistoricalHidden)return false;
+ if(key==="origins"&&current===2&&!chapter3RecruitmentVisible)return false;
  return !!filters[key]&&(current===7?connectionStage>=(connectionStageThreshold[key]??0):current>=(chapterLayerThreshold[key]??0));
 }
 function stopConnectionAnimation(){
@@ -1316,8 +1323,8 @@ function chapter5Paragraph(text){
 function render(resetView=true){
  if(window.frontierTimeline)window.frontierTimeline.sync(current,resetView);
  if(resetView)cancelIntroFlyover();
- // Enter Chapter 3 at the recruitment step, including on a restored visit.
- if(resetView&&current===2){traffickingStep=0;chapter3HistoricalHidden=false;filters.historical=true;rememberReadingPosition()}
+ // Keep Chapter 3's recruitment regions hidden until the reader selects that step.
+ if(resetView&&current===2){traffickingStep=0;chapter3RecruitmentVisible=false;chapter3HistoricalHidden=false;filters.historical=true;rememberReadingPosition()}
  document.querySelector(".map-wrap").classList.toggle("chapter-intro",current===0);
  const c=chapters[current];
  document.querySelector(".evidence-section").hidden=current===0;
@@ -1370,7 +1377,7 @@ function render(resetView=true){
  if(shownLayer("mining"))miningRegions.forEach(r=>dot(r.coord[0],r.coord[1],"#e2bb55",r.title+" · regional context",r.url,r.id));
  if((current===2||current>=4)&&shownLayer("trafficking")){
   const origin=[-12.5933,-69.1891],destination=[-12.900,-69.995];
-  registerEvidence("puerto-la-pampa",L.polyline([origin,destination],{color:"#f0657f",weight:2.6,opacity:.95,dashArray:"4,7"}).bindPopup('<strong>Puerto Maldonado → La Pampa: court-documented recruitment and transfer</strong><p>A 2017 court announcement describes minors recruited via an advertisement in Puerto Maldonado and taken to La Pampa. This schematic connection does not trace the road, river or an individual’s location.</p><p><strong>COURT OUTCOME:</strong> A 12-year sentence was reported in 2017.</p><a href="https://www.pj.gob.pe/wps/wcm/connect/cortesuprema/s_cortes_suprema_home/as_inicio/as_enlaces_destacados/as_imagen_prensa/as_notas_noticias/2017/cs_n_imponen_12_anos_de_carcel_a_mujer_trata_de_personas_madre_de_dios_17052017" target="_blank" rel="noopener">Read court announcement</a>')).addTo(layer);
+  if(current>=4)registerEvidence("puerto-la-pampa",L.polyline([origin,destination],{color:"#f0657f",weight:2.6,opacity:.95,dashArray:"4,7"}).bindPopup('<strong>Puerto Maldonado → La Pampa: court-documented recruitment and transfer</strong><p>A 2017 court announcement describes minors recruited via an advertisement in Puerto Maldonado and taken to La Pampa. This schematic connection does not trace the road, river or an individual’s location.</p><p><strong>COURT OUTCOME:</strong> A 12-year sentence was reported in 2017.</p><a href="https://www.pj.gob.pe/wps/wcm/connect/cortesuprema/s_cortes_suprema_home/as_inicio/as_enlaces_destacados/as_imagen_prensa/as_notas_noticias/2017/cs_n_imponen_12_anos_de_carcel_a_mujer_trata_de_personas_madre_de_dios_17052017" target="_blank" rel="noopener">Read court announcement</a>')).addTo(layer);
   dot(...origin,"#f0657f","Puerto Maldonado · court-documented recruitment locality","https://www.pj.gob.pe/wps/wcm/connect/cortesuprema/s_cortes_suprema_home/as_inicio/as_enlaces_destacados/as_imagen_prensa/as_notas_noticias/2017/cs_n_imponen_12_anos_de_carcel_a_mujer_trata_de_personas_madre_de_dios_17052017");
   dot(...destination,"#f0657f","La Pampa · court-documented exploitation destination (broad locality)","https://www.pj.gob.pe/wps/wcm/connect/cortesuprema/s_cortes_suprema_home/as_inicio/as_enlaces_destacados/as_imagen_prensa/as_notas_noticias/2017/cs_n_imponen_12_anos_de_carcel_a_mujer_trata_de_personas_madre_de_dios_17052017");
  }
