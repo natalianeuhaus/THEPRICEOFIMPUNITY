@@ -95,7 +95,7 @@
 .map-wrap.chapter-six .leaflet-marker-pane .leaflet-marker-icon,
 .map-wrap.chapter-six .leaflet-marker-pane .leaflet-marker-icon svg{animation:none!important}
 .map-wrap.chapter-six .leaflet-interactive.documented-overlap-ring{stroke-opacity:.98;stroke-width:2.5px}
-.leaflet-interactive:not(.historical-ring-clickthrough).marker-flash{animation:markerBlink .85s ease-in-out 2;stroke:#fff;stroke-width:5px}.political-context{border-top:1px solid #bbb;border-bottom:1px solid #555;margin:26px 0 23px;padding:19px 0 23px}
+.leaflet-interactive:not(.historical-ring-clickthrough).marker-flash{animation:markerBlink .85s ease-in-out 2;stroke:#fff;stroke-width:5px}.political-context{border-top:1px solid #bbb;margin:26px 0 0;padding:19px 0 0}
 .political-context h2{font:400 11px/1.6 monospace;letter-spacing:.13em;color:#eee;margin:0 0 13px}
 .political-context-intro{font:11px/1.8 monospace;color:#bbb;margin:0 0 13px}
 .political-context-stat{display:flex;align-items:center;gap:14px;margin:5px 0 15px}
@@ -115,7 +115,8 @@
 
 .political-context-small{font:10px/1.7 monospace;color:#999;margin:9px 0 16px}
 .political-context-small a,.political-context-report a{color:#c1d7e9;text-decoration:underline;text-underline-offset:2px}
-.political-context h3{font:400 10px/1.6 monospace;letter-spacing:.11em;margin:16px 0 9px;color:#ddd}
+.political-reports-division{border-top:1px solid #bbb;border-bottom:1px solid #555;margin:28px 0 23px;padding:20px 0 22px}
+.political-reports-division h2{font:400 11px/1.6 monospace;letter-spacing:.13em;margin:0 0 15px;color:#eee}
 .political-context-report{display:grid;grid-template-columns:83px minmax(0,1fr);gap:12px;border-top:1px solid #383838;padding:12px 0}
 .political-context-report .political-report-year{font:11px/1.5 monospace;color:#8bbdf0}
 .political-context-report p{font:11px/1.75 monospace;color:#d1d1d1;margin:0}
@@ -1272,7 +1273,7 @@ function scheduleIntroFlyover(){
 }
 let miningStudiesOpen=false;
 function makePoliticalContextTimeline(){
- const section=document.createElement("section");section.className="political-context";section.setAttribute("aria-label","Political instability and anti-trafficking enforcement, 2019 to 2025");
+ const section=document.createElement("section");section.className="political-context";section.setAttribute("aria-label","Presidential timeline and political instability");
  const title=document.createElement("h2");title.textContent="POLITICAL INSTABILITY & ANTI-TRAFFICKING ENFORCEMENT";
  const intro=document.createElement("p");intro.className="political-context-intro";intro.textContent="Twelve presidents held office in Peru from Alberto Fujimori's administration through the end of 2025. The investigation focuses on 2019–2025; earlier presidents provide national historical context, not evidence about individual decisions in Madre de Dios.";
  const stat=document.createElement("div");stat.className="political-context-stat";
@@ -1311,7 +1312,8 @@ function makePoliticalContextTimeline(){
  addLink("Peruvian Congress","https://www3.congreso.gob.pe/biblioteca/presidentes/2000-2021/");chronology.append(" · ");
  addLink("2022 transition","https://www.gob.pe/institucion/rree/noticias/679338-comunicado-oficial");chronology.append(" · ");
  addLink("2025 transition","https://www.gob.pe/institucion/presidencia/noticias/1261758-jose-jeri-ore-jura-como-presidente-de-la-republica-del-peru-por-sucesion-constitucional");
- const heading=document.createElement("h3");heading.textContent="WHAT THE ANTI-TRAFFICKING REPORTS DOCUMENT";
+ const reportsSection=document.createElement("section");reportsSection.className="political-reports-division";reportsSection.setAttribute("aria-label","What the anti-trafficking reports document");
+ const heading=document.createElement("h2");heading.textContent="WHAT THE ANTI-TRAFFICKING REPORTS DOCUMENT";
  const findings=[
  ["2020–2021","The U.S. State Department reported disrupted coordination among ministries and the national anti-trafficking commission. COVID-19 restrictions added to that disruption.","https://2021-2025.state.gov/reports/2021-trafficking-in-persons-report/peru__trashed/","2021 TRAFFICKING REPORT"],
  ["2023","The department directly linked political instability and frequent turnover in leadership positions within key agencies to difficulties implementing anti-trafficking measures.","https://2021-2025.state.gov/reports/2023-trafficking-in-persons-report/peru/","2023 TRAFFICKING REPORT"],
@@ -1320,7 +1322,9 @@ function makePoliticalContextTimeline(){
  const reports=document.createElement("div");reports.className="political-context-reports";
  findings.forEach(([year,summary,url,label])=>{const row=document.createElement("div");row.className="political-context-report";const y=document.createElement("div");y.className="political-report-year";y.textContent=year;const text=document.createElement("div");const p=document.createElement("p");p.textContent=summary;const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener";a.textContent=label+" ↗";text.append(p,a);row.append(y,text);reports.append(row)});
  const note=document.createElement("p");note.className="political-context-caveat";note.textContent="These are national findings, not evidence that a change of president caused a particular trafficking case, inspection failure, or court outcome in Madre de Dios. They show additional strain on institutions already responsible for enforcement.";
- section.append(title,intro,stat,timeline,chronology,heading,reports,note);return section;
+ section.append(title,intro,stat,timeline,chronology);
+ reportsSection.append(heading,reports,note);
+ const group=document.createDocumentFragment();group.append(section,reportsSection);return group;
 }
 function makeKlitgaardFramework(){
  const section=document.createElement("section");section.className="klitgaard-framework";
