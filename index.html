@@ -107,9 +107,6 @@
 .political-context-report .political-report-year{font:11px/1.5 monospace;color:#8bbdf0}
 .political-context-report p{font:11px/1.75 monospace;color:#d1d1d1;margin:0}
 .political-context-report a{display:inline-block;margin-top:5px;font:10px/1.5 monospace}
-.political-removal-name{display:block;font:12px/1.6 monospace;font-weight:400;color:#eee;margin:0 0 3px}
-.political-removal-rows{border-bottom:1px solid #383838}
-.political-removal-distinction{margin-top:12px}
 
 .political-context-caveat{font:10px/1.8 monospace;color:#aaa;border-left:2px solid #8bbdf0;padding:8px 11px;margin:15px 0 0;background:#0f1418}
 @media(max-width:500px){.political-president-list li{grid-template-columns:105px minmax(0,1fr);gap:6px}.political-president-list .political-name{font-size:11px}.political-context-report{grid-template-columns:72px minmax(0,1fr);gap:9px}}
@@ -1264,13 +1261,19 @@ let miningStudiesOpen=false;
 function makePoliticalContextTimeline(){
  const section=document.createElement("section");section.className="political-context";section.setAttribute("aria-label","Political instability and anti-trafficking enforcement, 2019 to 2025");
  const title=document.createElement("h2");title.textContent="POLITICAL INSTABILITY & ANTI-TRAFFICKING ENFORCEMENT";
- const intro=document.createElement("p");intro.className="political-context-intro";intro.textContent="Six presidents held office in Peru during the period covered by this investigation. This is the national political context, not a map of decisions made by individual presidents in Madre de Dios.";
+ const intro=document.createElement("p");intro.className="political-context-intro";intro.textContent="Twelve presidents held office in Peru from Alberto Fujimori's administration through the end of 2025. The investigation focuses on 2019–2025; earlier presidents provide national historical context, not evidence about individual decisions in Madre de Dios.";
  const stat=document.createElement("div");stat.className="political-context-stat";
- const number=document.createElement("strong");number.textContent="6";
- const descriptor=document.createElement("span");descriptor.textContent="PRESIDENTS IN OFFICE\nDURING 2019–2025";descriptor.style.whiteSpace="pre-line";stat.append(number,descriptor);
+ const number=document.createElement("strong");number.textContent="12";
+ const descriptor=document.createElement("span");descriptor.textContent="PRESIDENTS FROM FUJIMORI\nTHROUGH 2025";descriptor.style.whiteSpace="pre-line";stat.append(number,descriptor);
  const timeline=document.createElement("ol");timeline.className="political-president-list";
  const presidents=[
-  ["2019–NOV 2020","Martín Vizcarra"],
+  ["JUL 1990–NOV 2000","Alberto Fujimori"],
+  ["NOV 2000–JUL 2001","Valentín Paniagua"],
+  ["JUL 2001–JUL 2006","Alejandro Toledo"],
+  ["JUL 2006–JUL 2011","Alan García"],
+  ["JUL 2011–JUL 2016","Ollanta Humala"],
+  ["JUL 2016–MAR 2018","Pedro Pablo Kuczynski"],
+  ["MAR 2018–NOV 2020","Martín Vizcarra"],
   ["10–15 NOV 2020","Manuel Merino"],
   ["NOV 2020–JUL 2021","Francisco Sagasti"],
   ["JUL 2021–DEC 2022","Pedro Castillo"],
@@ -1279,41 +1282,11 @@ function makePoliticalContextTimeline(){
  ];
  presidents.forEach(([dates,name])=>{const li=document.createElement("li");const when=document.createElement("span");when.className="political-dates";when.textContent=dates;const who=document.createElement("span");who.className="political-name";who.textContent=name;li.append(when,who);timeline.append(li)});
  const chronology=document.createElement("p");chronology.className="political-context-small";
- chronology.append("Only the 2019–2025 portion of each tenure is shown. Presidential dates: ");
+ chronology.append("José Jerí's tenure is shown only through December 2025, the end of the investigation period. Presidential dates: ");
  const addLink=(label,href)=>{const a=document.createElement("a");a.href=href;a.target="_blank";a.rel="noopener";a.textContent=label;chronology.append(a)};
  addLink("Peruvian Congress","https://www3.congreso.gob.pe/biblioteca/presidentes/2000-2021/");chronology.append(" · ");
  addLink("2022 transition","https://www.gob.pe/institucion/rree/noticias/679338-comunicado-oficial");chronology.append(" · ");
  addLink("2025 transition","https://www.gob.pe/institucion/presidencia/noticias/1261758-jose-jeri-ore-jura-como-presidente-de-la-republica-del-peru-por-sucesion-constitucional");
- // The six-presidents count is confined to the investigation's 2019–2025
- // window. Congressional vacancy removals are a narrower category.
- const removalHeading=document.createElement("h3");removalHeading.textContent="CONGRESSIONAL REMOVALS SINCE FUJIMORI · 2000–2025";
- const removalIntro=document.createElement("p");removalIntro.className="political-context-small";
- removalIntro.textContent="Four presidents were removed after Congress invoked permanent moral incapacity under Article 113(2) of Peru's Constitution. This differs from Congress accepting a resignation, and it does not itself establish a criminal conviction.";
- const removalRows=document.createElement("div");removalRows.className="political-context-reports political-removal-rows";
- const vacancies=[
-  ["2000","Alberto Fujimori","Congress declared permanent moral incapacity and a vacancy of the presidency after declining his resignation.","https://www2.congreso.gob.pe/sicr/cendocbib/con5_uibd.nsf/00CDD442ACC30AB2052582BA007875FE/%24FILE/resolucionlegislativa-incapacidadmoral-2000-af.pdf"],
-  ["2020","Martín Vizcarra","Congress declared the presidency vacant on 9 November.","https://comunicaciones.congreso.gob.pe/noticias/congreso-de-la-republica-aprueba-vacancia-de-martin-vizcarra-por-105-votos-a-favor/"],
-  ["2022","Pedro Castillo","Congress declared a vacancy on 7 December following his attempt to dissolve Congress.","https://comunicaciones.congreso.gob.pe/noticias/congreso-de-la-republica-declara-vacancia-de-pedro-castillo-y-sucesion-presidencial/"],
-  ["2025","Dina Boluarte","Congress declared a vacancy on 10 October.","https://comunicaciones.congreso.gob.pe/noticias/congreso-de-la-republica-aprueba-vacancia-de-dina-boluarte-con-122-votos-a-favor/"]
- ];
- vacancies.forEach(([year,name,description,url])=>{
-  const row=document.createElement("div");row.className="political-context-report";
-  const date=document.createElement("div");date.className="political-report-year";date.textContent=year;
-  const details=document.createElement("div");
-  const label=document.createElement("strong");label.className="political-removal-name";label.textContent=name;
-  const summary=document.createElement("p");summary.textContent=description;
-  const source=document.createElement("a");source.href=url;source.target="_blank";source.rel="noopener";source.textContent="CONGRESSIONAL RECORD ↗";
-  details.append(label,summary,source);row.append(date,details);removalRows.append(row);
- });
- const distinction=document.createElement("p");distinction.className="political-context-small political-removal-distinction";
- distinction.append("Different exits: ");
- const distinctionLink=(text,url)=>{const link=document.createElement("a");link.textContent=text;link.href=url;link.target="_blank";link.rel="noopener";distinction.append(link)};
- distinctionLink("Kuczynski resigned in 2018","https://comunicaciones.congreso.gob.pe/noticias/congreso-acepto-renuncia-de-kuczynski-a-la-presidencia/");
- distinction.append("; ");
- distinctionLink("Merino resigned in 2020","https://comunicaciones.congreso.gob.pe/noticias/pleno-acepta-renuncia-de-merino-de-lama-a-la-presidencia-de-la-republica/");
- distinction.append("; and ");
- distinctionLink("Jerí was censured in February 2026","https://comunicaciones.congreso.gob.pe/noticias/congreso-aprueba-mociones-de-censura-contra-el-presidente-de-la-republica-jose-jeri-ore/");
- distinction.append(", after this investigation's 2019–2025 window.");
  const heading=document.createElement("h3");heading.textContent="WHAT THE ANTI-TRAFFICKING REPORTS DOCUMENT";
  const findings=[
  ["2020–2021","The U.S. State Department reported disrupted coordination among ministries and the national anti-trafficking commission. COVID-19 restrictions added to that disruption.","https://2021-2025.state.gov/reports/2021-trafficking-in-persons-report/peru__trashed/","2021 TRAFFICKING REPORT"],
@@ -1323,7 +1296,7 @@ function makePoliticalContextTimeline(){
  const reports=document.createElement("div");reports.className="political-context-reports";
  findings.forEach(([year,summary,url,label])=>{const row=document.createElement("div");row.className="political-context-report";const y=document.createElement("div");y.className="political-report-year";y.textContent=year;const text=document.createElement("div");const p=document.createElement("p");p.textContent=summary;const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener";a.textContent=label+" ↗";text.append(p,a);row.append(y,text);reports.append(row)});
  const note=document.createElement("p");note.className="political-context-caveat";note.textContent="These are national findings, not evidence that a change of president caused a particular trafficking case, inspection failure, or court outcome in Madre de Dios. They show additional strain on institutions already responsible for enforcement.";
- section.append(title,intro,stat,timeline,chronology,removalHeading,removalIntro,removalRows,distinction,heading,reports,note);return section;
+ section.append(title,intro,stat,timeline,chronology,heading,reports,note);return section;
 }
 function makeKlitgaardFramework(){
  const section=document.createElement("section");section.className="klitgaard-framework";
