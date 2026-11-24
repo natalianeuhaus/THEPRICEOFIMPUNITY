@@ -47,6 +47,8 @@
 .connection-overview button{font:10px/1.5 monospace;border:1px solid #777;background:transparent;color:#ddd;padding:9px 11px;cursor:pointer}
 .connection-overview button:hover,.connection-overview button:focus-visible{color:#fff;border-color:#fff}
 .leaflet-overlay-pane path.connection-flow{animation:connection-flow 4.2s linear infinite;stroke-linecap:round;filter:drop-shadow(0 0 1.4px #8bbdf0)}
+/* Chapter 5 keeps blue evidence connections static while the white overlap rings animate. */
+.map-wrap.chapter-five .leaflet-overlay-pane path.connection-flow{animation:none;filter:none;stroke-dashoffset:0}
 .leaflet-chapter4-jurisdiction-pane path.institution-jurisdiction-hit{pointer-events:stroke}
 .leaflet-chapter4-jurisdiction-pane path.institution-jurisdiction-flow{stroke-dasharray:2 10;stroke-linecap:round;animation:institution-jurisdiction-flow 9s linear infinite}
 @keyframes institution-jurisdiction-flow{to{stroke-dashoffset:-120}}
@@ -1327,6 +1329,7 @@ function render(resetView=true){
  // Keep Chapter 3's recruitment regions hidden until the reader selects that step.
  if(resetView&&current===2){traffickingStep=0;chapter3RecruitmentVisible=false;chapter3HistoricalHidden=false;filters.historical=true;rememberReadingPosition()}
  document.querySelector(".map-wrap").classList.toggle("chapter-intro",current===0);
+ document.querySelector(".map-wrap").classList.toggle("chapter-five",current===4);
  const c=chapters[current];
  document.querySelector(".evidence-section").hidden=current===0;
  document.getElementById("number").textContent="CHAPTER "+String(visibleChapterIds.indexOf(current)+1).padStart(2,"0")+" / 06";
