@@ -96,10 +96,17 @@
 .political-context-stat strong{font:400 38px/1 Georgia,serif;color:#f0f0f0}
 .political-context-stat span{font:10px/1.5 monospace;color:#bbb;letter-spacing:.05em}
 .political-president-list{list-style:none;border-left:1px solid #999;margin:0 0 13px 5px;padding:0 0 0 13px}
-.political-president-list li{position:relative;display:grid;grid-template-columns:minmax(115px,42%) 1fr;align-items:baseline;gap:8px;border-bottom:1px solid #303030;padding:8px 2px}
+.political-president-list li{position:relative;display:grid;grid-template-columns:minmax(115px,42%) 1fr;align-items:start;gap:8px;border-bottom:1px solid #303030;padding:10px 2px}
 .political-president-list li::before{content:"";position:absolute;left:-17px;top:16px;width:5px;height:5px;background:#eee;border:1px solid #111;border-radius:50%}
 .political-president-list .political-dates{font:10px/1.5 monospace;color:#aaa}
 .political-president-list .political-name{font:12px/1.5 monospace;color:#eee}
+.political-president-details{min-width:0}
+.political-president-details .political-name{display:block}
+.political-president-status{display:block;margin:3px 0 0;font:9px/1.5 monospace;letter-spacing:.05em;color:#aeb7bf}
+.political-president-removed{color:#dfbb65}
+.political-president-explanation{font:10px/1.65 monospace;color:#aaa;margin:4px 0 0}
+.political-president-source{display:inline-block;margin:4px 0 0;color:#c1d7e9;font:9px/1.5 monospace;text-decoration:underline;text-underline-offset:2px}
+
 .political-context-small{font:10px/1.7 monospace;color:#999;margin:9px 0 16px}
 .political-context-small a,.political-context-report a{color:#c1d7e9;text-decoration:underline;text-underline-offset:2px}
 .political-context h3{font:400 10px/1.6 monospace;letter-spacing:.11em;margin:16px 0 9px;color:#ddd}
@@ -1267,20 +1274,31 @@ function makePoliticalContextTimeline(){
  const descriptor=document.createElement("span");descriptor.textContent="PRESIDENTS FROM FUJIMORI\nTHROUGH 2025";descriptor.style.whiteSpace="pre-line";stat.append(number,descriptor);
  const timeline=document.createElement("ol");timeline.className="political-president-list";
  const presidents=[
-  ["JUL 1990–NOV 2000","Alberto Fujimori"],
-  ["NOV 2000–JUL 2001","Valentín Paniagua"],
-  ["JUL 2001–JUL 2006","Alejandro Toledo"],
-  ["JUL 2006–JUL 2011","Alan García"],
-  ["JUL 2011–JUL 2016","Ollanta Humala"],
-  ["JUL 2016–MAR 2018","Pedro Pablo Kuczynski"],
-  ["MAR 2018–NOV 2020","Martín Vizcarra"],
-  ["10–15 NOV 2020","Manuel Merino"],
-  ["NOV 2020–JUL 2021","Francisco Sagasti"],
-  ["JUL 2021–DEC 2022","Pedro Castillo"],
-  ["DEC 2022–OCT 2025","Dina Boluarte"],
-  ["OCT–DEC 2025","José Jerí"]
+  ["JUL 1990–NOV 2000","Alberto Fujimori","REMOVED BY CONGRESS","Congress rejected his resignation and declared the presidency vacant in November 2000.","https://www2.congreso.gob.pe/sicr/cendocbib/con5_uibd.nsf/00CDD442ACC30AB2052582BA007875FE/%24FILE/resolucionlegislativa-incapacidadmoral-2000-af.pdf"],
+  ["NOV 2000–JUL 2001","Valentín Paniagua","INTERIM · COMPLETED TRANSITION","",""],
+  ["JUL 2001–JUL 2006","Alejandro Toledo","COMPLETED ELECTED TERM","",""],
+  ["JUL 2006–JUL 2011","Alan García","COMPLETED ELECTED TERM","",""],
+  ["JUL 2011–JUL 2016","Ollanta Humala","COMPLETED ELECTED TERM","",""],
+  ["JUL 2016–MAR 2018","Pedro Pablo Kuczynski","RESIGNED","Resigned in March 2018 amid congressional removal proceedings.","https://comunicaciones.congreso.gob.pe/noticias/congreso-acepto-renuncia-de-kuczynski-a-la-presidencia/"],
+  ["MAR 2018–NOV 2020","Martín Vizcarra","REMOVED BY CONGRESS","Congress declared a presidential vacancy in November 2020.","https://comunicaciones.congreso.gob.pe/noticias/congreso-de-la-republica-aprueba-vacancia-de-martin-vizcarra-por-105-votos-a-favor/"],
+  ["10–15 NOV 2020","Manuel Merino","RESIGNED","Resigned after five days in office amid protests.","https://comunicaciones.congreso.gob.pe/noticias/pleno-acepta-renuncia-de-merino-de-lama-a-la-presidencia-de-la-republica/"],
+  ["NOV 2020–JUL 2021","Francisco Sagasti","INTERIM · COMPLETED TRANSITION","",""],
+  ["JUL 2021–DEC 2022","Pedro Castillo","REMOVED BY CONGRESS","Congress removed him after his attempt to dissolve the legislature in December 2022.","https://comunicaciones.congreso.gob.pe/noticias/congreso-de-la-republica-declara-vacancia-de-pedro-castillo-y-sucesion-presidencial/"],
+  ["DEC 2022–OCT 2025","Dina Boluarte","REMOVED BY CONGRESS","Congress declared a presidential vacancy in October 2025.","https://comunicaciones.congreso.gob.pe/noticias/congreso-de-la-republica-aprueba-vacancia-de-dina-boluarte-con-122-votos-a-favor/"],
+  ["OCT–DEC 2025","José Jerí","IN OFFICE AT 2025 CUTOFF","Later removed through congressional censure in February 2026, outside this investigation's period.","https://comunicaciones.congreso.gob.pe/noticias/congreso-aprueba-mociones-de-censura-contra-el-presidente-de-la-republica-jose-jeri-ore/"]
  ];
- presidents.forEach(([dates,name])=>{const li=document.createElement("li");const when=document.createElement("span");when.className="political-dates";when.textContent=dates;const who=document.createElement("span");who.className="political-name";who.textContent=name;li.append(when,who);timeline.append(li)});
+ presidents.forEach(([dates,name,status,detail,sourceUrl])=>{
+  const li=document.createElement("li");
+  const when=document.createElement("span");when.className="political-dates";when.textContent=dates;
+  const details=document.createElement("div");details.className="political-president-details";
+  const who=document.createElement("span");who.className="political-name";who.textContent=name;
+  const outcome=document.createElement("span");outcome.className="political-president-status";outcome.textContent=status;
+  if(status==="REMOVED BY CONGRESS")outcome.classList.add("political-president-removed");
+  details.append(who,outcome);
+  if(detail){const explanation=document.createElement("p");explanation.className="political-president-explanation";explanation.textContent=detail;details.append(explanation)}
+  if(sourceUrl){const link=document.createElement("a");link.className="political-president-source";link.href=sourceUrl;link.target="_blank";link.rel="noopener";link.textContent="CONGRESSIONAL RECORD ↗";details.append(link)}
+  li.append(when,details);timeline.append(li);
+ });
  const chronology=document.createElement("p");chronology.className="political-context-small";
  chronology.append("José Jerí's tenure is shown only through December 2025, the end of the investigation period. Presidential dates: ");
  const addLink=(label,href)=>{const a=document.createElement("a");a.href=href;a.target="_blank";a.rel="noopener";a.textContent=label;chronology.append(a)};
