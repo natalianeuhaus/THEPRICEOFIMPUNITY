@@ -690,7 +690,30 @@ function createLegend(){
  groups.forEach(([label,items])=>{const visible=items.filter(legendVisible);if(!visible.length)return;const section=document.createElement("div");section.className="legend-group";const title=document.createElement("div");title.className="legend-group-title";title.textContent=label;section.append(title);visible.forEach(item=>{const btn=document.createElement("button");btn.type="button";btn.className="legend-spot";btn.setAttribute("aria-pressed",String(activeEvidence===item.id));const name=document.createElement("span");name.textContent=item.count!==undefined?item.title.split(" — ")[0]:item.title;const value=document.createElement("span");value.textContent=item.count!==undefined?String(item.count):"↗";btn.append(name,value);btn.onclick=()=>selectEvidence(item.id);section.append(btn)});holder.append(section)});
 }
 function registerEvidence(id,shape){evidenceLayers.set(id,shape);shape.on("click",()=>selectEvidence(id,true));return shape}
-function selectEvidence(id,move=true){id=evidenceIndexAliases[id]||id;const item=evidence.find(x=>x.id===id);if(!item||item.first>current)return;if(current===2&&id.startsWith("historical-")&&!shownLayer("historical")){filters.historical=true;chapter3HistoricalHidden=false;render(false)}activeEvidence=id;drawEvidenceList();createLegend();if(move){if(item.bounds)map.fitBounds(item.bounds,{padding:[65,65],maxZoom:9,animate:true});else map.flyTo(item.coord,item.evidenceKind==="origin"?7:Math.max(map.getZoom(),11),{duration:.85});const shape=evidenceLayers.get(id);if(shape){map.once("moveend",()=>{if(evidenceLayers.get(id)===shape)shape.openPopup()});shape.openPopup()}}}
+function selectEvidence(id,move=true){
+ id=evidenceIndexAliases[id]||id;
+ const item=evidence.find(x=>x.id===id);
+ if(!item||item.first>current)return;
+ if(current===2&&id.startsWith("historical-")&&!shownLayer("historical")){
+  filters.historical=true;chapter3HistoricalHidden=false;render(false);
+ }
+ activeEvidence=id;drawEvidenceList();createLegend();
+ if(!move)return;
+ const shape=evidenceLayers.get(id);
+ map.closePopup();
+ if(shape){
+  const popup=shape.getPopup?.();
+  if(current===1&&popup){
+   popup.options.autoPanPaddingTopLeft=L.point(18,70);
+   popup.options.autoPanPaddingBottomRight=L.point(18,22);
+  }
+  // Position the popup after the camera finishes moving, so Leaflet's
+  // automatic padding can keep its title and close button fully visible.
+  map.once("moveend",()=>{if(activeEvidence===id&&evidenceLayers.get(id)===shape)shape.openPopup()});
+ }
+ if(item.bounds)map.fitBounds(item.bounds,{padding:[65,65],maxZoom:9,animate:true});
+ else map.flyTo(item.coord,item.evidenceKind==="origin"?7:Math.max(map.getZoom(),11),{duration:.85});
+}
 const evidenceCategories=[
  {id:"geography",label:"01 · FROM THE HIGH ANDES TO THE AMAZON",test:e=>e.evidenceKind==="geography"},
  {id:"mining",label:"02 · THE MINING FRONTIER",test:e=>e.id.startsWith("regional-")||["pampa-mining","pariamanu"].includes(e.id)||e.caseLayer==="mining"},
