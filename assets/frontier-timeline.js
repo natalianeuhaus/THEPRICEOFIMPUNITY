@@ -146,7 +146,7 @@
       map.invalidateSize({pan: false});
       // Chapter 2's shorter live-map viewport needs a little more room below
       // the southern mining sites. Move the map image up without changing zoom.
-      if (enteringFrontier && current === 1) map.panBy([0, 48], {animate: false});
+      if (enteringFrontier && current === 1) map.panBy([0, 83], {animate: false});
     });
   }
   scrubber.addEventListener('input', () => {
